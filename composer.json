@@ -1,0 +1,17 @@
+{
+    "name": "spiffy/spiffy-crud",
+    "description": "ZF2 module for managing entities",
+    "homepage": "http://www.github.com/spiffyjr/spiffy-crud.git",
+    "require": {
+        "php": ">=5.3.3",
+        "zendframework/zend-form": "2.1.*",
+        "zendframework/zend-modulemanager": "2.1.*",
+        "zendframework/zend-servicemanager": "2.1.*",
+        "zendframework/zend-stdlib": "2.1.*"
+    },
+    "autoload": {
+        "psr-0": {
+            "SpiffyCrud\\": "src/"
+        }
+    }
+}
