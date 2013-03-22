@@ -2,8 +2,10 @@
 
 return array(
     'factories' => array(
-        'SpiffyCrud\CrudManager'  => 'SpiffyCrud\Service\CrudManagerFactory',
-        'SpiffyCrud\FormManager'  => 'SpiffyCrud\Service\FormManagerFactory',
-        'SpiffyCrud\ModelManager' => 'SpiffyCrud\Service\ModelManagerFactory',
+        'SpiffyCrudManagerCrud'  => 'SpiffyCrud\Service\ManagerCrudFactory',
+        'SpiffyCrudManagerForm'  => 'SpiffyCrud\Service\ManagerFormFactory',
+        'SpiffyCrudManagerModel' => 'SpiffyCrud\Service\ManagerModelFactory',
+
+        'SpiffyCrudMapperDoctrineObject' => 'SpiffyCrud\Service\MapperDoctrineObjectFactory'
     )
 );

@@ -7,35 +7,43 @@ use Zend\Stdlib\Hydrator\HydratorInterface;
 interface MapperInterface
 {
     /**
-     * @param mixed $select
-     * @param mixed|null $id
+     * @param string $entityPrototype
      * @param HydratorInterface $hydrator
-     * @param object|null $entityPrototype
-     * @return mixed
+     * @param array $options
+     * @return object
      */
-    public function read($select, $id = null, HydratorInterface $hydrator = null, $entityPrototype = null);
+    public function readAll($entityPrototype, HydratorInterface $hydrator, array $options = array());
 
     /**
-     * @param mixed $entity
-     * @param array $options
+     * @param object $entity
+     * @param string|integer $id
      * @param HydratorInterface $hydrator
-     * @return mixed
+     * @return object
      */
-    public function create($entity, array $options = array(), HydratorInterface $hydrator = null);
+    public function read($entity, $id, HydratorInterface $hydrator);
 
     /**
-     * @param mixed $where
+     * @param object $entity
+     * @param HydratorInterface $hydrator
      * @param array $options
-     * @return mixed
+     * @return object
      */
-    public function delete($where, array $options = array());
+    public function create($entity, HydratorInterface $hydrator, array $options = array());
 
     /**
-     * @param mixed $entity
+     * @param string|integer $where
+     * @param string $entityPrototype
+     * @param array $options
+     * @return void
+     */
+    public function delete($where, $entityPrototype, array $options = array());
+
+    /**
+     * @param object $entity
      * @param mixed|null $where
-     * @param array $options
      * @param HydratorInterface $hydrator
-     * @return mixed
+     * @param array $options
+     * @return object
      */
-    public function update($entity, $where = null, array $options = array(), HydratorInterface $hydrator = null);
+    public function update($entity, $where = null, HydratorInterface $hydrator, array $options = array());
 }

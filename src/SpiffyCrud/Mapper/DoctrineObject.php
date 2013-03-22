@@ -21,74 +21,59 @@ class DoctrineObject implements MapperInterface
     }
 
     /**
-     * @param mixed $id
-     * @param mixed $input
-     * @return mixed|object
-     */
-    public function find($id, $input)
-    {
-        return $this->objectManager->getRepository(get_class($input))->find($id);
-    }
-
-    /**
-     * @param $input
-     * @return mixed
-     * @throws \InvalidArgumentException if input is not an object
-     */
-    public function findAll($input)
-    {
-        if (!is_object($input)) {
-            throw new \InvalidArgumentException('object expected');
-        }
-        return $this->objectManager->getRepository(get_class($input))->findAll();
-    }
-
-    /**
-     * @param mixed $select
-     * @param mixed|null $id
-     * @param HydratorInterface $hydrator
-     * @param object|null $entityPrototype
-     * @return mixed
-     */
-    public function read($select, $id = null, HydratorInterface $hydrator = null, $entityPrototype = null)
-    {
-        $repository = $this->objectManager->getRepository($select);
-        if ($id) {
-            return $repository->find($id);
-        }
-        return $repository->findAll();
-    }
-
-    /**
-     * @param mixed $entity
+     * @param string $entityPrototype
+     * @param null|HydratorInterface $hydrator
      * @param array $options
-     * @param HydratorInterface $hydrator
-     * @return mixed
+     * @return object
      */
-    public function create($entity, array $options = array(), HydratorInterface $hydrator = null)
+    public function readAll($entityPrototype, HydratorInterface $hydrator = null, array $options = array())
+    {
+        return $this->objectManager->getRepository($entityPrototype)->findAll();
+    }
+
+    /**
+     * @param object $entity
+     * @param string|integer $id
+     * @param null|HydratorInterface $hydrator
+     * @return object
+     */
+    public function read($entity, $id, HydratorInterface $hydrator = null)
+    {
+        return $this->objectManager->getRepository(get_class($entity))->find($id);
+    }
+
+    /**
+     * @param object $entity
+     * @param null|HydratorInterface $hydrator
+     * @param array $options
+     * @return object
+     */
+    public function create($entity, HydratorInterface $hydrator = null, array $options = array())
     {
         return $this->persist($entity);
     }
 
     /**
-     * @param mixed $where
+     * @param string|integer $where
+     * @param string $entityPrototype
      * @param array $options
-     * @return mixed
+     * @return void
      */
-    public function delete($where, array $options = array())
+    public function delete($where, $entityPrototype, array $options = array())
     {
-        $this->objectManager->remove($where);
-        return $where;
+        $entity = $this->read(new $entityPrototype, $where, null);
+        $this->objectManager->remove($entity);
+        $this->objectManager->flush();
     }
 
     /**
-     * @param mixed $entity
+     * @param object $entity
      * @param mixed|null $where
+     * @param null|HydratorInterface $hydrator
      * @param array $options
-     * @param HydratorInterface $hydrator
-     * @return mixed
+     * @return object
      */
-    public function update($entity, $where = null, array $options = array(), HydratorInterface $hydrator = null)
+    public function update($entity, $where = null, HydratorInterface $hydrator = null, array $options = array())
     {
         return $this->persist($entity);
     }

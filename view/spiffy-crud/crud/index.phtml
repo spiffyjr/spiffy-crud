@@ -1,0 +1,14 @@
+<h1>Crud Manager</h1>
+Below is a listing of all your registered models. Simply click a model name to begin management.
+
+<h2>Registered Models</h2>
+
+<ul>
+<?php foreach($this->models as $name => $canonicalName) : ?>
+    <li>
+        <a href="<?php echo $this->url('spiffycrud/details', array('name' => $canonicalName));?>">
+            <?php echo $name; ?>
+        </a>
+    </li>
+<?php endforeach; ?>
+</ul>

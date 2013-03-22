@@ -13,5 +13,10 @@
         "psr-0": {
             "SpiffyCrud\\": "src/"
         }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.x-dev"
+        }
     }
 }

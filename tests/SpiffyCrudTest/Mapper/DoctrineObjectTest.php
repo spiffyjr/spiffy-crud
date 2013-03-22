@@ -31,7 +31,7 @@ class DoctrineObjectTest extends \PHPUnit_Framework_TestCase
     public function testReadAll()
     {
         $model  = new SimpleModel();
-        $result = $this->mapper->read($model);
+        $result = $this->mapper->readAll($model);
 
         $this->assertCount(2, $result);
 
@@ -54,19 +54,12 @@ class DoctrineObjectTest extends \PHPUnit_Framework_TestCase
 
     public function testDelete()
     {
-        $model = new SimpleModel();
-        $this->assertInstanceOf(get_class($model), $this->mapper->delete($model));
-    }
-
-    public function testFindAllThrowsExceptionOnInvalidArgument()
-    {
-        $this->setExpectedException('InvalidArgumentException', 'object expected');
-        $this->mapper->findAll(false);
+        // intentionally left blank, can't really test it?
     }
 
     public function testCreate()
     {
         $model = new SimpleModel();
-        $this->assertInstanceOf(get_class($model), $this->mapper->create($model, array()));
+        $this->assertInstanceOf(get_class($model), $this->mapper->create($model));
     }
 }

@@ -10,6 +10,8 @@ use SpiffyCrud\ModelManager;
 use SpiffyCrudTest\Asset\SimpleEntity;
 use SpiffyCrudTest\Asset\SimpleForm;
 use SpiffyCrudTest\Asset\SimpleModel;
+use SpiffyTest\Module as SpiffyTest;
+use Zend\Stdlib\Hydrator\ClassMethods;
 
 class CrudManagerTest extends \PHPUnit_Framework_TestCase
 {
@@ -21,6 +23,7 @@ class CrudManagerTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->manager = new CrudManager(new ModelManager(), new FormManager());
+        $this->manager->setServiceLocator(SpiffyTest::getInstance()->getServiceManager());
     }
 
     public function testExceptionThrownWhenModelDoesNotContainAnEntity()
@@ -33,6 +36,24 @@ class CrudManagerTest extends \PHPUnit_Framework_TestCase
         $model = new SimpleModel();
         $model->setEntityClass(null);
         $this->manager->getEntityFromModel($model);
+    }
+
+    public function testModelsHaveDefaultMapper()
+    {
+        $mapper = new SimpleArray();
+        $this->manager->setDefaultMapper($mapper);
+        $model = new SimpleModel();
+
+        $this->assertEquals($mapper, $this->manager->getMapperFromModel($model));
+    }
+
+    public function testDefaultHydrator()
+    {
+        $hydrator = new ClassMethods();
+        $this->manager->setDefaultHydrator($hydrator);
+        $model = new SimpleModel();
+
+        $this->assertEquals($hydrator, $this->manager->getHydratorFromModel($model));
     }
 
     public function testHydrateModelEntity()
@@ -117,5 +138,61 @@ class CrudManagerTest extends \PHPUnit_Framework_TestCase
         $model = $this->manager->getModel('bar');
 
         $this->manager->create($model, array());
+    }
+
+    public function testCreate()
+    {
+        $mapper = new SimpleArray(array(
+            array('foo' => 1, 'bar' => 'test'),
+            array('foo' => 2, 'bar' => 'test2')
+        ));
+
+        $expected = array(
+            array('foo' => 1, 'bar' => 'test'),
+            array('foo' => 2, 'bar' => 'test2'),
+            array('foo' => 3, 'bar' => 'test3')
+        );
+
+        $model = new SimpleModel();
+        $model->setMapper($mapper);
+
+        $this->manager->create($model, array('foo' => 3, 'bar' => 'test3'));
+        $this->assertEquals($expected, $mapper->getData());
+    }
+
+    public function testUpdate()
+    {
+        $mapper = new SimpleArray(array(
+            array('foo' => 1, 'bar' => 'test'),
+            array('foo' => 2, 'bar' => 'test2')
+        ));
+
+        $expected = array(
+            array('foo' => 1, 'bar' => 'test'),
+            array('foo' => 2, 'bar' => 'updated'),
+        );
+
+        $model = new SimpleModel();
+        $model->setMapper($mapper);
+
+        $this->manager->update(1, $model, array('foo' => 2, 'bar' => 'updated'));
+        $this->assertEquals($expected, $mapper->getData());
+    }
+
+    public function testRead()
+    {
+        $mapper = new SimpleArray(array(
+            array('foo' => 1, 'bar' => 'test'),
+            array('foo' => 2, 'bar' => 'test2')
+        ));
+
+        $expected = new SimpleEntity();
+        $expected->setFoo(2)
+                 ->setBar('test2');
+
+        $model = new SimpleModel();
+        $model->setMapper($mapper);
+
+        $this->assertEquals($expected, $this->manager->read($model, 1));
     }
 }

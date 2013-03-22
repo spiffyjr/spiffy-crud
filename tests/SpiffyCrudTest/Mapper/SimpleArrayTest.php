@@ -3,72 +3,88 @@
 namespace SpiffyCrudTest\Model;
 
 use SpiffyCrud\Mapper\SimpleArray;
+use SpiffyCrudTest\Asset\SimpleEntity;
+use Zend\Stdlib\Hydrator\ClassMethods;
 
 class SimpleArrayTest extends \PHPUnit_Framework_TestCase
 {
     protected $data = array(
-        array('id' => 1, 'name' => 'foo'),
-        array('id' => 2, 'name' => 'foofoo'),
-        array('id' => 3, 'name' => 'bar'),
-        array('id' => 4, 'name' => 'barbar'),
+        array('foo' =>  1, 'bar' => 'foo'),
+        array('foo' =>  2, 'bar' => 'foofoo'),
+        array('foo' =>  3, 'bar' => 'bar'),
+        array('foo' =>  4, 'bar' => 'barbar'),
     );
 
-    public function testReadSingle()
+    public function testRead()
     {
-        $expected = array('id' => 3, 'name' => 'bar');
+        $expected = new SimpleEntity();
+        $expected->setFoo(3)
+                 ->setBar('bar');
 
-        $mapper = new SimpleArray($this->data);
-        $this->assertEquals($expected, $mapper->read(2));
+        $mapper   = new SimpleArray($this->data);
+        $hydrator = new ClassMethods();
+
+        $this->assertEquals($expected, $mapper->read(new SimpleEntity(), 2, $hydrator));
+    }
+
+    public function testReadAll()
+    {
+        $mapper   = new SimpleArray($this->data);
+        $hydrator = new ClassMethods();
+
+        $this->assertEquals($this->data, $mapper->getData());
     }
 
     public function testUpdate()
     {
         $expected = array(
-            array('id' => 1, 'name' => 'foo'),
-            array('id' => 9, 'name' => 'updated'),
-            array('id' => 3, 'name' => 'bar'),
-            array('id' => 4, 'name' => 'barbar'),
+            array('foo' =>  1, 'bar' => 'foo'),
+            array('foo' =>  9, 'bar' => 'updated'),
+            array('foo' =>  3, 'bar' => 'bar'),
+            array('foo' =>  4, 'bar' => 'barbar'),
         );
 
-        $mapper = new SimpleArray($this->data);
-        $mapper->update(array('id' => 9, 'name' => 'updated'), 1);
-        $this->assertEquals($expected, $mapper->read('all'));
+        $entity = new SimpleEntity();
+        $entity->setFoo(9)
+               ->setBar('updated');
+
+        $mapper   = new SimpleArray($this->data);
+        $mapper->update($entity, 1, new ClassMethods());
+        $this->assertEquals($expected, $mapper->getData());
     }
 
     public function testDelete()
     {
         $expected = array(
-            0 => array('id' => 1, 'name' => 'foo'),
-            2 => array('id' => 3, 'name' => 'bar'),
-            3 => array('id' => 4, 'name' => 'barbar'),
+            0 => array('foo' =>  1, 'bar' => 'foo'),
+            2 => array('foo' =>  3, 'bar' => 'bar'),
+            3 => array('foo' =>  4, 'bar' => 'barbar'),
         );
 
         $mapper = new SimpleArray($this->data);
         $mapper->delete(1);
-        $this->assertEquals($expected, $mapper->read('all'));
+        $this->assertEquals($expected, $mapper->getData());
 
         $this->setExpectedException('OutOfBoundsException', 'invalid index');
         $mapper->delete(10);
     }
 
-    public function testRead()
-    {
-        $mapper = new SimpleArray($this->data);
-        $this->assertEquals($this->data, $mapper->read('all'));
-    }
-
     public function testCreate()
     {
         $expected = array(
-            array('id' => 1, 'name' => 'foo'),
-            array('id' => 2, 'name' => 'foofoo'),
-            array('id' => 3, 'name' => 'bar'),
-            array('id' => 4, 'name' => 'barbar'),
-            array('id' => 5, 'name' => 'created')
+            array('foo' =>  1, 'bar' => 'foo'),
+            array('foo' =>  2, 'bar' => 'foofoo'),
+            array('foo' =>  3, 'bar' => 'bar'),
+            array('foo' =>  4, 'bar' => 'barbar'),
+            array('foo' =>  5, 'bar' => 'created')
         );
 
+        $entity = new SimpleEntity();
+        $entity->setFoo(5)
+               ->setBar('created');
+
         $mapper = new SimpleArray($this->data);
-        $mapper->create(array('id' => 5, 'name' => 'created'));
-        $this->assertEquals($expected, $mapper->read('all'));
+        $mapper->create($entity, new ClassMethods());
+        $this->assertEquals($expected, $mapper->getData());
     }
 }

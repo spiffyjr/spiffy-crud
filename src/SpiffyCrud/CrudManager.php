@@ -4,16 +4,24 @@ namespace SpiffyCrud;
 
 use SpiffyCrud\Mapper\MapperInterface;
 use SpiffyCrud\Model\AbstractModel;
+use Zend\ServiceManager\ServiceLocatorAwareInterface;
+use Zend\ServiceManager\ServiceLocatorAwareTrait;
+use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\ServiceManager;
 use Zend\Stdlib\Hydrator\ClassMethods;
 use Zend\Stdlib\Hydrator\HydratorInterface;
 
-class CrudManager
+class CrudManager implements ServiceLocatorAwareInterface
 {
     /**
      * @var HydratorInterface
      */
     protected $defaultHydrator;
+
+    /**
+     * @var MapperInterface
+     */
+    protected $defaultMapper;
 
     /**
      * @var FormManager
@@ -26,6 +34,11 @@ class CrudManager
     protected $modelManager;
 
     /**
+     * @var ServiceLocatorInterface
+     */
+    protected $serviceLocator = null;
+
+    /**
      * @param ModelManager $modelManager
      * @param FormManager $formManager
      */
@@ -36,7 +49,48 @@ class CrudManager
     }
 
     /**
-     * @param \Zend\Stdlib\Hydrator\HydratorInterface $defaultHydrator
+     * @param MapperInterface $defaultMapper
+     * @return CrudManager
+     */
+    public function setDefaultMapper(MapperInterface $defaultMapper)
+    {
+        $this->defaultMapper = $defaultMapper;
+        return $this;
+    }
+
+    /**
+     * @return MapperInterface
+     */
+    public function getDefaultMapper()
+    {
+        return $this->defaultMapper;
+    }
+
+    /**
+     * Set service locator
+     *
+     * @param ServiceLocatorInterface $serviceLocator
+     * @return mixed
+     */
+    public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
+    {
+        $this->serviceLocator = $serviceLocator;
+
+        return $this;
+    }
+
+    /**
+     * Get service locator
+     *
+     * @return ServiceLocatorInterface
+     */
+    public function getServiceLocator()
+    {
+        return $this->serviceLocator;
+    }
+
+    /**
+     * @param HydratorInterface $defaultHydrator
      * @return CrudManager
      */
     public function setDefaultHydrator(HydratorInterface $defaultHydrator)
@@ -46,7 +100,7 @@ class CrudManager
     }
 
     /**
-     * @return \Zend\Stdlib\Hydrator\HydratorInterface
+     * @return HydratorInterface
      */
     public function getDefaultHydrator()
     {
@@ -90,20 +144,50 @@ class CrudManager
         return $this->modelManager;
     }
 
+    /**
+     * @param AbstractModel $model
+     * @param string|integer|null $id
+     * @return mixed
+     */
+    public function read(AbstractModel $model, $id = null)
+    {
+        $this->validateModel($model);
+
+        $entity   = $this->getEntityFromModel($model);
+        $hydrator = $this->getHydratorFromModel($model);
+
+        return $model->getMapper()->read($entity, $id, $hydrator, $model->getMapperOptions());
+    }
+
+    /**
+     * @param AbstractModel $model
+     * @param array $data
+     * @return object
+     */
     public function create(AbstractModel $model, array $data)
     {
         $this->validateModel($model);
 
-        $entity = $this->hydrateModelEntity($data, $model);
-        return $model->getMapper()->create($entity, $model->getMapperOptions(), $model->getHydrator());
+        $entity   = $this->hydrateModelEntity($data, $model);
+        $hydrator = $this->getHydratorFromModel($model);
+
+        return $model->getMapper()->create($entity, $hydrator, $model->getMapperOptions());
     }
 
+    /**
+     * @param string|integer $id
+     * @param AbstractModel $model
+     * @param array $data
+     * @return object
+     */
     public function update($id, AbstractModel $model, array $data)
     {
         $this->validateModel($model);
 
-        $entity = $this->hydrateModelEntity($data, $model);
-        return $model->getMapper()->update($entity, $id, $model->getMapperOptions(), $model->getHydrator());
+        $entity   = $this->hydrateModelEntity($data, $model);
+        $hydrator = $this->getHydratorFromModel($model);
+
+        return $model->getMapper()->update($entity, $id, $hydrator, $model->getMapperOptions());
     }
 
     /**
@@ -114,7 +198,7 @@ class CrudManager
     public function delete($id, AbstractModel $model)
     {
         $this->validateModel($model);
-        return $model->getMapper()->delete($id, $model->getMapperOptions());
+        $model->getMapper()->delete($id, $model->getMapperOptions());
     }
 
     /**
@@ -125,7 +209,7 @@ class CrudManager
     public function hydrateModelEntity(array $data, AbstractModel $model)
     {
         $entity   = $this->getEntityFromModel($model);
-        $hydrator = $model->getHydrator() ? $model->getHydrator() : $this->getDefaultHydrator();
+        $hydrator = $this->getHydratorFromModel($model);
 
         return $hydrator->hydrate($data, $entity);
     }
@@ -137,7 +221,7 @@ class CrudManager
     public function extractModelEntity(AbstractModel $model)
     {
         $entity   = $this->getEntityFromModel($model);
-        $hydrator = $model->getHydrator() ? $model->getHydrator() : $this->getDefaultHydrator();
+        $hydrator = $this->getHydratorFromModel($model);
 
         return $hydrator->extract($entity);
     }
@@ -159,6 +243,34 @@ class CrudManager
             return $model->getEntity();
         }
         throw new \RuntimeException('Model does not have an entity or entityClass');
+    }
+
+    /**
+     * Gets the mapper for a model or the default is the model doesn't have one.
+     *
+     * @param AbstractModel $model
+     * @return null|MapperInterface
+     */
+    public function getMapperFromModel(AbstractModel $model)
+    {
+        if ($model->getMapper()) {
+            return $model->getMapper();
+        }
+        return $this->getDefaultMapper();
+    }
+
+    /**
+     * Gets the hydrator for a model or the default is the model doesn't have one.
+     *
+     * @param AbstractModel $model
+     * @return HydratorInterface
+     */
+    public function getHydratorFromModel(AbstractModel $model)
+    {
+        if ($model->getHydrator()) {
+            return $model->getHydrator();
+        }
+        return $this->getDefaultHydrator();
     }
 
     /**

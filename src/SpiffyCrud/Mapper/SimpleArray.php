@@ -21,63 +21,91 @@ class SimpleArray implements MapperInterface
     }
 
     /**
-     * @param mixed $select
-     * @param mixed|null $id
-     * @param HydratorInterface $hydrator
-     * @param object|null $entityPrototype
-     * @return mixed
+     * @param array $data
+     * @return SimpleArray
      */
-    public function read($select, $id = null, HydratorInterface $hydrator = null, $entityPrototype = null)
+    public function setData($data)
     {
-        if ($select == 'all') {
-            return $this->data;
+        $this->data = $data;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
+    /**
+     * @param object $entityPrototype
+     * @param HydratorInterface $hydrator
+     * @param array $options
+     * @return object
+     */
+    public function readAll($entityPrototype, HydratorInterface $hydrator, array $options = array())
+    {
+        $result = array();
+        foreach($this->data as $key => $data) {
+            $result[$key] = $hydrator->hydrate($data, new $entityPrototype);
         }
-        $this->checkIndex($select);
-        return $this->data[$select];
+        return $result;
     }
 
     /**
-     * @param mixed $entity
-     * @param array $options
+     * @param object $entity
+     * @param string|integer $id
      * @param HydratorInterface $hydrator
-     * @return mixed
+     * @return object
      */
-    public function create($entity, array $options = array(), HydratorInterface $hydrator = null)
+    public function read($entity, $id, HydratorInterface $hydrator)
     {
-        $this->data[] = $entity;
+        $this->checkIndex($id);
+        return $hydrator->hydrate($this->data[$id], $entity);
+    }
+
+    /**
+     * @param object $entity
+     * @param HydratorInterface $hydrator
+     * @param array $options
+     * @return object
+     */
+    public function create($entity, HydratorInterface $hydrator, array $options = array())
+    {
+        $this->data[] = $hydrator->extract($entity);
         return $entity;
     }
 
     /**
-     * @param mixed $where
+     * @param string|integer $where
+     * @param null|string $entityPrototype
      * @param array $options
-     * @return mixed
+     * @return void
      */
-    public function delete($where, array $options = array())
+    public function delete($where, $entityPrototype = null, array $options = array())
     {
         $this->checkIndex($where);
-        $deleted = $this->data[$where];
         unset($this->data[$where]);
-        return $deleted;
     }
 
     /**
-     * @param mixed $entity
+     * @param object $entity
      * @param mixed|null $where
-     * @param array $options
      * @param HydratorInterface $hydrator
-     * @return mixed
+     * @param array $options
+     * @return object
      */
-    public function update($entity, $where = null, array $options = array(), HydratorInterface $hydrator = null)
+    public function update($entity, $where = null, HydratorInterface $hydrator, array $options = array())
     {
         $this->checkIndex($where);
-        $this->data[$where] = $entity;
+        $this->data[$where] = $hydrator->extract($entity);
         return $entity;
     }
 
     /**
-     * @param string|int $index
+     * @param string|integer $index
      * @throws \InvalidArgumentException on missing or invalid index
+     * @throws \OutOfBoundsException if the index is out of bounds
      */
     protected function checkIndex($index)
     {
