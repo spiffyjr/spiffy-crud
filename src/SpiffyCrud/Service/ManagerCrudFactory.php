@@ -3,6 +3,9 @@
 namespace SpiffyCrud\Service;
 
 use SpiffyCrud\CrudManager;
+use SpiffyCrud\FormManager;
+use SpiffyCrud\ModelManager;
+use Zend\ServiceManager\Config;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
@@ -16,11 +19,11 @@ class ManagerCrudFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        /** @var $formManager \SpiffyCrud\FormManager */
-        $formManager  = $serviceLocator->get('SpiffyCrudManagerForm');
+        $config  = $serviceLocator->get('Configuration');
+        $options = new ManagerCrudFactoryOptions(isset($config['spiffycrud']) ? $config['spiffycrud'] : array());
 
-        /** @var $modelManager \SpiffyCrud\ModelManager */
-        $modelManager = $serviceLocator->get('SpiffyCrudManagerModel');
+        $formManager  = new FormManager(new Config($options->getForms()));
+        $modelManager = new ModelManager(new Config($options->getModels()));
 
         return new CrudManager($modelManager, $formManager);
     }
