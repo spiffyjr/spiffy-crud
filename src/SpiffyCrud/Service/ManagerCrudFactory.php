@@ -24,7 +24,32 @@ class ManagerCrudFactory implements FactoryInterface
 
         $formManager  = new FormManager(new Config($options->getForms()));
         $modelManager = new ModelManager(new Config($options->getModels()));
+        $crudManager  = new CrudManager($modelManager, $formManager);
 
-        return new CrudManager($modelManager, $formManager);
+        $mapper = $options->getDefaultMapper();
+        if ($mapper) {
+            if (is_string($mapper) && $serviceLocator->has($mapper)) {
+                $mapper = $serviceLocator->get($mapper);
+            } else if (class_exists($mapper)) {
+                $mapper = new $mapper;
+            } else {
+                throw new \RuntimeException('Mapper could not be found');
+            }
+            $crudManager->setDefaultMapper($mapper);
+        }
+
+        $builder = $options->getFormBuilder();
+        if ($builder) {
+            if (is_string($builder) && $serviceLocator->has($builder)) {
+                $builder = $serviceLocator->get($builder);
+            } else if (class_exists($mapper)) {
+                $builder = new $builder;
+            } else {
+                throw new \RuntimeException('Builder could not be found');
+            }
+            $crudManager->setFormBuilder($builder);
+        }
+
+        return $crudManager;
     }
 }

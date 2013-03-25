@@ -2,8 +2,11 @@
 
 namespace SpiffyCrud;
 
+use SpiffyCrud\Form\Annotation\ModelListener;
 use SpiffyCrud\Mapper\MapperInterface;
 use SpiffyCrud\Model\AbstractModel;
+use Zend\Form\Annotation\AnnotationBuilder;
+use Zend\Form\Form;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
 use Zend\ServiceManager\ServiceLocatorInterface;
@@ -22,6 +25,11 @@ class CrudManager implements ServiceLocatorAwareInterface
      * @var MapperInterface
      */
     protected $defaultMapper;
+
+    /**
+     * @var AnnotationBuilder
+     */
+    protected $formBuilder;
 
     /**
      * @var FormManager
@@ -46,6 +54,27 @@ class CrudManager implements ServiceLocatorAwareInterface
     {
         $this->modelManager = $modelManager;
         $this->formManager  = $formManager;
+    }
+
+    /**
+     * @param \Zend\Form\Annotation\AnnotationBuilder $formBuilder
+     * @return CrudManager
+     */
+    public function setFormBuilder(AnnotationBuilder $formBuilder)
+    {
+        $this->formBuilder = $formBuilder;
+        return $this;
+    }
+
+    /**
+     * @return \Zend\Form\Annotation\AnnotationBuilder
+     */
+    public function getFormBuilder()
+    {
+        if (!$this->formBuilder instanceof AnnotationBuilder) {
+            $this->formBuilder = new AnnotationBuilder();
+        }
+        return $this->formBuilder;
     }
 
     /**
@@ -151,12 +180,11 @@ class CrudManager implements ServiceLocatorAwareInterface
      */
     public function read(AbstractModel $model, $id = null)
     {
-        $this->validateModel($model);
-
         $entity   = $this->getEntityFromModel($model);
         $hydrator = $this->getHydratorFromModel($model);
+        $mapper   = $this->getMapperFromModel($model);
 
-        return $model->getMapper()->read($entity, $id, $hydrator, $model->getMapperOptions());
+        return $mapper->read($entity, $id, $hydrator, $model->getMapperOptions());
     }
 
     /**
@@ -166,12 +194,11 @@ class CrudManager implements ServiceLocatorAwareInterface
      */
     public function create(AbstractModel $model, array $data)
     {
-        $this->validateModel($model);
-
         $entity   = $this->hydrateModelEntity($data, $model);
         $hydrator = $this->getHydratorFromModel($model);
+        $mapper   = $this->getMapperFromModel($model);
 
-        return $model->getMapper()->create($entity, $hydrator, $model->getMapperOptions());
+        return $mapper->create($entity, $hydrator, $model->getMapperOptions());
     }
 
     /**
@@ -182,23 +209,22 @@ class CrudManager implements ServiceLocatorAwareInterface
      */
     public function update($id, AbstractModel $model, array $data)
     {
-        $this->validateModel($model);
-
         $entity   = $this->hydrateModelEntity($data, $model);
         $hydrator = $this->getHydratorFromModel($model);
+        $mapper   = $this->getMapperFromModel($model);
 
-        return $model->getMapper()->update($entity, $id, $hydrator, $model->getMapperOptions());
+        return $mapper->update($entity, $id, $hydrator, $model->getMapperOptions());
     }
 
     /**
      * @param mixed $id
      * @param AbstractModel $model
-     * @return AbstractModel
+     * @return void
      */
     public function delete($id, AbstractModel $model)
     {
-        $this->validateModel($model);
-        $model->getMapper()->delete($id, $model->getMapperOptions());
+        $mapper = $this->getMapperFromModel($model);
+        $mapper->delete($id, $model->getMapperOptions());
     }
 
     /**
@@ -249,14 +275,17 @@ class CrudManager implements ServiceLocatorAwareInterface
      * Gets the mapper for a model or the default is the model doesn't have one.
      *
      * @param AbstractModel $model
+     * @throws \RuntimeException if no mapper is available.
      * @return null|MapperInterface
      */
     public function getMapperFromModel(AbstractModel $model)
     {
         if ($model->getMapper()) {
             return $model->getMapper();
+        } else if ($this->getDefaultMapper()) {
+            return $this->getDefaultMapper();
         }
-        return $this->getDefaultMapper();
+        throw new \RuntimeException('Model does not have a mapper and default mapper was not registered');
     }
 
     /**
@@ -274,15 +303,38 @@ class CrudManager implements ServiceLocatorAwareInterface
     }
 
     /**
-     * Validates that a model has all the required parameters.
+     * Gets a form for a model. Will pull from form manager, instantiate a class, or use the
+     * default form builder in order.
      *
      * @param AbstractModel $model
-     * @throws \RuntimeException if the model does not validate
+     * @throws \RuntimeException if no form can be created or found from form manager
+     * @return \Zend\Form\Form
      */
-    protected function validateModel(AbstractModel $model)
+    public function getFormFromModel(AbstractModel $model)
     {
-        if (!$model->getMapper() instanceof MapperInterface) {
-            throw new \RuntimeException('Models require a mapper');
+        $form = $model->getForm();
+        if ($form instanceof Form) {
+            return $form;
+        } else if (is_string($form)) {
+            if ($this->formManager->has($form)) {
+                $form = $this->formManager->get($form);
+            } else if (class_exists($form)) {
+                $form = new $form;
+            } else {
+                throw new \RuntimeException('String for form given but could not be found.');
+            }
+        } else {
+            $entity  = $this->getEntityFromModel($model);
+            $builder = $this->getFormBuilder();
+
+            $form = $builder->createForm($entity);
+            $form->setHydrator($this->getHydratorFromModel($model));
         }
+
+        if (!$form instanceof Form) {
+            throw new \RuntimeException('Model forms should be a string or instance of Zend\Form\Form');
+        }
+
+        return $form;
     }
 }

@@ -2,10 +2,18 @@
 
 namespace SpiffyCrudTest\Asset;
 
+use Zend\Form\Annotation;
+
 class SimpleEntity
 {
+    /**
+     * @Form\Name("foo")
+     */
     protected $foo;
 
+    /**
+     * @Form\Name("bar")
+     */
     protected $bar;
 
     public function setFoo($foo)

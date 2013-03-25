@@ -28,7 +28,7 @@ class CrudController extends AbstractActionController
     public function getCrudManager()
     {
         if (!$this->crudManager instanceof CrudManager) {
-            $this->crudManager = $this->getServiceLocator()->get('SpiffyCrudManagerCrud');
+            $this->crudManager = $this->getServiceLocator()->get('SpiffyCrudManager');
         }
         return $this->crudManager;
     }
@@ -60,10 +60,13 @@ class CrudController extends AbstractActionController
         $model   = $manager->getModelManager()->get($this->params('name'));
         $names   = array_flip($manager->getModelManager()->getCanonicalNames());
         $entity  = $manager->read($model, $this->params('id'));
+        $form    = $manager->getFormFromModel($model);
 
         return array(
-            'model' => $model,
-            'name'  => $names[$this->params('name')]
+            'model'  => $model,
+            'entity' => $entity,
+            'form'   => $form,
+            'name'   => $names[$this->params('name')]
         );
     }
 }

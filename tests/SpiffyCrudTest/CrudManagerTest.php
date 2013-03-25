@@ -7,10 +7,12 @@ use SpiffyCrud\CrudManager;
 use SpiffyCrud\FormManager;
 use SpiffyCrud\Mapper\SimpleArray;
 use SpiffyCrud\ModelManager;
+use SpiffyCrudTest\Asset\IncludedFieldsModel;
 use SpiffyCrudTest\Asset\SimpleEntity;
 use SpiffyCrudTest\Asset\SimpleForm;
 use SpiffyCrudTest\Asset\SimpleModel;
 use SpiffyTest\Module as SpiffyTest;
+use Zend\Form\Annotation\AnnotationBuilder;
 use Zend\Stdlib\Hydrator\ClassMethods;
 
 class CrudManagerTest extends \PHPUnit_Framework_TestCase
@@ -133,7 +135,7 @@ class CrudManagerTest extends \PHPUnit_Framework_TestCase
         $this->manager->update(0, $model, array());
         $this->manager->delete(0, $model);
 
-        $this->setExpectedException('RuntimeException', 'Models require a mapper');
+        $this->setExpectedException('RuntimeException', 'Model does not have a mapper and default mapper was not registered');
         $this->manager->getModelManager()->setService('bar', new SimpleModel());
         $model = $this->manager->getModel('bar');
 
@@ -194,5 +196,32 @@ class CrudManagerTest extends \PHPUnit_Framework_TestCase
         $model->setMapper($mapper);
 
         $this->assertEquals($expected, $this->manager->read($model, 1));
+    }
+
+    public function testFormIsUsedDirectly()
+    {
+        $form  = new SimpleForm();
+        $model = new SimpleModel();
+        $model->setForm($form);
+
+        $this->assertEquals($form, $this->manager->getFormFromModel($model));
+    }
+
+    public function testFormIsRetrievedFromFormManager()
+    {
+        $model = new SimpleModel();
+        $model->setForm('foo');
+
+        $this->manager->getFormManager()->setService('foo', new SimpleForm);
+        $this->assertInstanceOf('SpiffyCrudTest\Asset\SimpleForm', $this->manager->getFormFromModel($model));
+    }
+
+    public function testFormIsBuiltByDefaultFromFormBuilder()
+    {
+        $form = $this->manager->getFormFromModel(new SimpleModel());
+
+        $this->assertInstanceOf('Zend\Form\Annotation\AnnotationBuilder', $this->manager->getFormBuilder());
+        $this->assertInstanceOf('Zend\Form\Form', $form);
+        $this->assertCount(2, $form->getElements());
     }
 }

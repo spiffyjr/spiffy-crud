@@ -17,6 +17,30 @@ class ManagerCrudFactoryTest extends \PHPUnit_Framework_TestCase
         $this->factory = new ManagerCrudFactory();
     }
 
+    public function testDefaultMapperSetWithString()
+    {
+        $sm     = SpiffyTest::getInstance()->getServiceManager();
+        $config = $sm->get('Configuration');
+        $config['spiffycrud']['default_mapper'] = 'SpiffyCrud\Mapper\SimpleArray';
+        $sm->setAllowOverride(true);
+        $sm->setService('Configuration', $config);
+
+        $service = $this->factory->createService($sm);
+        $this->assertInstanceOf('SpiffyCrud\Mapper\SimpleArray', $service->getDefaultMapper());
+    }
+
+    public function testDefaultMapperIsSetWithSmAlias()
+    {
+        $sm     = SpiffyTest::getInstance()->getServiceManager();
+        $config = $sm->get('Configuration');
+        $config['spiffycrud']['default_mapper'] = 'SpiffyCrudMapperDoctrineObject';
+        $sm->setAllowOverride(true);
+        $sm->setService('Configuration', $config);
+
+        $service = $this->factory->createService($sm);
+        $this->assertInstanceOf('SpiffyCrud\Mapper\DoctrineObject', $service->getDefaultMapper());
+    }
+
     public function testExpectedInstanceReturned()
     {
         $service = $this->factory->createService(SpiffyTest::getInstance()->getServiceManager());

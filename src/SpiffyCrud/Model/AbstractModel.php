@@ -8,27 +8,6 @@ use Zend\Stdlib\Hydrator\HydratorInterface;
 abstract class AbstractModel extends AbstractOptions
 {
     /**
-     * Fields that will be excluded from being displayed.
-     *
-     * @var array
-     */
-    protected $excludeFields = array();
-
-    /**
-     * Fields that will be included in the display.
-     *
-     * @var array
-     */
-    protected $includeFields = array();
-
-    /**
-     * Fields that will be grouped together in a fieldset.
-     *
-     * @var array
-     */
-    protected $fieldsets = array();
-
-    /**
      * The hydrator used to hydrate/extract data from the entity.
      *
      * @var \Zend\Stdlib\Hydrator\HydratorInterface|null
@@ -107,42 +86,6 @@ abstract class AbstractModel extends AbstractOptions
     }
 
     /**
-     * @param array $excludeFields
-     * @return AbstractModel
-     */
-    public function setExcludeFields(array $excludeFields)
-    {
-        $this->excludeFields = $excludeFields;
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getExcludeFields()
-    {
-        return $this->excludeFields;
-    }
-
-    /**
-     * @param array $fieldsets
-     * @return AbstractModel
-     */
-    public function setFieldsets(array $fieldsets)
-    {
-        $this->fieldsets = $fieldsets;
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getFieldsets()
-    {
-        return $this->fieldsets;
-    }
-
-    /**
      * @param \Zend\Form\Form $form
      * @return AbstractModel
      */
@@ -159,25 +102,6 @@ abstract class AbstractModel extends AbstractOptions
     {
         return $this->form;
     }
-
-    /**
-     * @param array $includeFields
-     * @return AbstractModel
-     */
-    public function setIncludeFields(array $includeFields)
-    {
-        $this->includeFields = $includeFields;
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getIncludeFields()
-    {
-        return $this->includeFields;
-    }
-
 
     /**
      * @param null|\Zend\Stdlib\Hydrator\HydratorInterface $hydrator

@@ -22,7 +22,15 @@ class ManagerCrudFactoryOptions extends AbstractOptions
      *
      * @var string|MapperInterface
      */
-    protected $defaultMapper;
+    protected $defaultMapper = 'SpiffyCrudMapperDoctrineObject';
+
+    /**
+     * A string with a service locator resource or a \Zend\Form\Builder\AnnotationBuilder to
+     * use as a form builder.
+     *
+     * @var string
+     */
+    protected $formBuilder = 'SpiffyCrudBuilderDoctrineOrm';
 
     /**
      * The service manager configuration for the form manager.
@@ -39,7 +47,25 @@ class ManagerCrudFactoryOptions extends AbstractOptions
     protected $models;
 
     /**
+     * @param string $formBuilder
+     */
+    public function setFormBuilder($formBuilder)
+    {
+        $this->formBuilder = $formBuilder;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormBuilder()
+    {
+        return $this->formBuilder;
+    }
+
+    /**
      * @param array $models
+     * @return ManagerCrudFactoryOptions
      */
     public function setModels($models)
     {
@@ -57,6 +83,7 @@ class ManagerCrudFactoryOptions extends AbstractOptions
 
     /**
      * @param array $forms
+     * @return ManagerCrudFactoryOptions
      */
     public function setForms($forms)
     {
