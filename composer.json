@@ -4,10 +4,18 @@
     "homepage": "http://www.github.com/spiffyjr/spiffy-crud.git",
     "require": {
         "php": ">=5.3.3",
+        "zendframework/zend-config": "2.1.*",
         "zendframework/zend-form": "2.1.*",
         "zendframework/zend-modulemanager": "2.1.*",
+        "zendframework/zend-mvc": "2.1.*",
         "zendframework/zend-servicemanager": "2.1.*",
         "zendframework/zend-stdlib": "2.1.*"
+    },
+    "require-dev": {
+        "doctrine/doctrine-orm-module": "0.*",
+        "mockery/mockery": "0.*",
+        "phpunit/phpunit": "3.*",
+        "spiffy/spiffy-test": "dev-master"
     },
     "autoload": {
         "psr-0": {
