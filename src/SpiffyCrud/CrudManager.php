@@ -307,12 +307,22 @@ class CrudManager implements ServiceLocatorAwareInterface
      * default form builder in order.
      *
      * @param AbstractModel $model
+     * @param null|object $entity
      * @throws \RuntimeException if no form can be created or found from form manager
      * @return \Zend\Form\Form
      */
-    public function getFormFromModel(AbstractModel $model)
+    public function getFormFromModel(AbstractModel $model, $entity = null)
     {
+        if (is_object($entity)) {
+            if (get_class($entity) != $model->getEntityClass()) {
+                throw new \InvalidArgumentException('Supplied entity does not match model entityClass');
+            }
+        } else {
+            $entity = $this->getEntityFromModel($model);
+        }
+
         $form = $model->getForm();
+
         if ($form instanceof Form) {
             return $form;
         } else if (is_string($form)) {
@@ -324,7 +334,6 @@ class CrudManager implements ServiceLocatorAwareInterface
                 throw new \RuntimeException('String for form given but could not be found.');
             }
         } else {
-            $entity  = $this->getEntityFromModel($model);
             $builder = $this->getFormBuilder();
 
             $form = $builder->createForm($entity);
@@ -334,6 +343,8 @@ class CrudManager implements ServiceLocatorAwareInterface
         if (!$form instanceof Form) {
             throw new \RuntimeException('Model forms should be a string or instance of Zend\Form\Form');
         }
+
+        $form->bind($entity);
 
         return $form;
     }

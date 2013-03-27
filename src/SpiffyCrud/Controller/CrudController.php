@@ -2,6 +2,7 @@
 
 namespace SpiffyCrud\Controller;
 
+use DoctrineModule\Stdlib\Hydrator\DoctrineObject;
 use SpiffyCrud\CrudManager;
 use Zend\Mvc\Controller\AbstractActionController;
 
@@ -60,7 +61,10 @@ class CrudController extends AbstractActionController
         $model   = $manager->getModelManager()->get($this->params('name'));
         $names   = array_flip($manager->getModelManager()->getCanonicalNames());
         $entity  = $manager->read($model, $this->params('id'));
-        $form    = $manager->getFormFromModel($model);
+        $form    = $manager->getFormFromModel($model, $entity);
+
+        $hydrator = new DoctrineObject($this->getServiceLocator()->get('Doctrine\ORM\EntityManager'), 'ZamUser\Entity\User');
+        $form->setHydrator($hydrator);
 
         return array(
             'model'  => $model,

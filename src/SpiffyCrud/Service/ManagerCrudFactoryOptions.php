@@ -14,7 +14,7 @@ class ManagerCrudFactoryOptions extends AbstractOptions
      *
      * @var string|HydratorInterface
      */
-    protected $defaultHydrator;
+    protected $defaultHydrator = 'Zend\Stdlib\Hydrator\ClassMethods';
 
     /**
      * A string with a service locator resource or a MapperInterface to

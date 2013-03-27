@@ -15,18 +15,9 @@ $form->setAttribute('method', 'post');
             <?php echo $this->formLabel($element, $element->getAttribute('label') ? $element->getAttribute('label') : $element->getName()) ?>
             </dt>
         <?php endif ?>
-        <?php if ($element instanceof Zend\Form\Element\Button): ?>
-            <dd><?php echo $this->formButton($element) ?></dd>
-        <?php elseif ($element instanceof Zend\Form\Element\Captcha): ?>
-            <dd><?php echo $this->formCaptcha($element) . $this->formElementErrors($element) ?></dd>
-        <?php else: ?>
-            <dd><?php echo $this->formInput($element) . $this->formElementErrors($element) ?></dd>
-        <?php endif ?>
+        <dd><?php echo $this->formElement($element) . $this->formElementErrors($element) ?></dd>
     <?php endforeach ?>
 </dl>
-<?php if ($this->redirect): ?>
-    <input type="hidden" name="redirect" value="<?php echo $this->escapeHtml($this->redirect) ?>" />
-<?php endif ?>
 <?php echo $this->form()->closeTag() ?>
 
 

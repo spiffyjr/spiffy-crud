@@ -26,6 +26,18 @@ class ManagerCrudFactory implements FactoryInterface
         $modelManager = new ModelManager(new Config($options->getModels()));
         $crudManager  = new CrudManager($modelManager, $formManager);
 
+        $hydrator = $options->getDefaultHydrator();
+        if ($hydrator) {
+            if (is_string($hydrator) && $serviceLocator->has($hydrator)) {
+                $hydrator = $serviceLocator->get($hydrator);
+            } else if (class_exists($hydrator)) {
+                $hydrator = new $hydrator;
+            } else {
+                throw new \RuntimeException('Hydrator could not be found');
+            }
+            $crudManager->setDefaultHydrator($hydrator);
+        }
+
         $mapper = $options->getDefaultMapper();
         if ($mapper) {
             if (is_string($mapper) && $serviceLocator->has($mapper)) {

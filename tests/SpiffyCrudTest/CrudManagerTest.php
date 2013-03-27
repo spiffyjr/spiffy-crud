@@ -7,6 +7,7 @@ use SpiffyCrud\CrudManager;
 use SpiffyCrud\FormManager;
 use SpiffyCrud\Mapper\SimpleArray;
 use SpiffyCrud\ModelManager;
+use SpiffyCrudTest\Asset\AdvancedEntity;
 use SpiffyCrudTest\Asset\IncludedFieldsModel;
 use SpiffyCrudTest\Asset\SimpleEntity;
 use SpiffyCrudTest\Asset\SimpleForm;
@@ -214,6 +215,17 @@ class CrudManagerTest extends \PHPUnit_Framework_TestCase
 
         $this->manager->getFormManager()->setService('foo', new SimpleForm);
         $this->assertInstanceOf('SpiffyCrudTest\Asset\SimpleForm', $this->manager->getFormFromModel($model));
+    }
+
+    public function testFormEntityMatchesModelEntityClass()
+    {
+        $entity = new SimpleEntity();
+        $model  = new SimpleModel();
+
+        $this->manager->getFormFromModel($model, $entity);
+
+        $this->setExpectedException('InvalidArgumentException', 'Supplied entity does not match model entityClass');
+        $this->manager->getFormFromModel($model, new AdvancedEntity());
     }
 
     public function testFormIsBuiltByDefaultFromFormBuilder()
