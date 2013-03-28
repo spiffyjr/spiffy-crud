@@ -175,10 +175,10 @@ class CrudManager implements ServiceLocatorAwareInterface
 
     /**
      * @param AbstractModel $model
-     * @param string|integer|null $id
+     * @param string|integer $id
      * @return mixed
      */
-    public function read(AbstractModel $model, $id = null)
+    public function read(AbstractModel $model, $id)
     {
         $entity   = $this->getEntityFromModel($model);
         $hydrator = $this->getHydratorFromModel($model);
@@ -189,7 +189,6 @@ class CrudManager implements ServiceLocatorAwareInterface
 
     /**
      * @param AbstractModel $model
-     * @param string|integer|null $id
      * @return mixed
      */
     public function readAll(AbstractModel $model)

@@ -28,7 +28,7 @@ class DoctrineObject implements MapperInterface
      */
     public function readAll($entityPrototype, HydratorInterface $hydrator = null, array $options = array())
     {
-        return $this->objectManager->getRepository($entityPrototype)->findAll();
+        return $this->objectManager->getRepository(get_class($entityPrototype))->findAll();
     }
 
     /**

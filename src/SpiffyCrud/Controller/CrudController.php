@@ -53,8 +53,7 @@ class CrudController extends AbstractActionController
         return array(
             'model'    => $model,
             'name'     => $names[$this->params('name')],
-            'data'     => $manager->read($model),
-            'renderer' => new Datatable()
+            'data'     => $manager->readAll($model)
         );
     }
 

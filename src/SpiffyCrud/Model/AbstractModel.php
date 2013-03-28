@@ -36,6 +36,13 @@ abstract class AbstractModel extends AbstractOptions
     protected $mapper;
 
     /**
+     * Additional options for the view such as column setup, etc.
+     *
+     * @var array
+     */
+    protected $viewOptions = array();
+
+    /**
      * Additional options for the mapper such as table_name.
      *
      * @var array
@@ -137,6 +144,24 @@ abstract class AbstractModel extends AbstractOptions
     public function getMapperOptions()
     {
         return $this->mapperOptions;
+    }
+
+    /**
+     * @param array $viewOptions
+     * @return AbstractModel
+     */
+    public function setViewOptions(array $viewOptions)
+    {
+        $this->viewOptions = $viewOptions;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getViewOptions()
+    {
+        return $this->viewOptions;
     }
 
     /**
