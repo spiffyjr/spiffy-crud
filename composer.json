@@ -17,6 +17,9 @@
         "phpunit/phpunit": "3.*",
         "spiffy/spiffy-test": "dev-master"
     },
+    "suggest": {
+        "spiffy/spiffy-datatables": "Used by default for displaying lists"
+    },
     "autoload": {
         "psr-0": {
             "SpiffyCrud\\": "src/"

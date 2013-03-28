@@ -213,7 +213,7 @@ class CrudManagerTest extends \PHPUnit_Framework_TestCase
         $model = new SimpleModel();
         $model->setForm('foo');
 
-        $this->manager->getFormManager()->setService('foo', new SimpleForm);
+        $this->manager->getFormManager()->setService('foo', new SimpleForm());
         $this->assertInstanceOf('SpiffyCrudTest\Asset\SimpleForm', $this->manager->getFormFromModel($model));
     }
 

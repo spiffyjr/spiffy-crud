@@ -45,7 +45,7 @@ abstract class AbstractModel extends AbstractOptions
     /**
      * The form used to take user input for hydrating the entity.
      *
-     * @var \Zend\Form\Form
+     * @var string|\Zend\Form\Form
      */
     protected $form;
 
@@ -86,7 +86,7 @@ abstract class AbstractModel extends AbstractOptions
     }
 
     /**
-     * @param \Zend\Form\Form $form
+     * @param string|\Zend\Form\Form $form
      * @return AbstractModel
      */
     public function setForm($form)

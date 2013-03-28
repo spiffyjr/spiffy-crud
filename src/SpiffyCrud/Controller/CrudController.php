@@ -45,9 +45,9 @@ class CrudController extends AbstractActionController
 
     public function detailsAction()
     {
-        $manager = $this->getCrudManager();
-        $names   = array_flip($manager->getModelManager()->getCanonicalNames());
-        $model   = $manager->getModelManager()->get($this->params('name'));
+        $manager  = $this->getCrudManager();
+        $names    = array_flip($manager->getModelManager()->getCanonicalNames());
+        $model    = $manager->getModelManager()->get($this->params('name'));
 
         return array(
             'model' => $model,

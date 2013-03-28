@@ -26,42 +26,37 @@ class ManagerCrudFactory implements FactoryInterface
         $modelManager = new ModelManager(new Config($options->getModels()));
         $crudManager  = new CrudManager($modelManager, $formManager);
 
-        $hydrator = $options->getDefaultHydrator();
-        if ($hydrator) {
-            if (is_string($hydrator) && $serviceLocator->has($hydrator)) {
-                $hydrator = $serviceLocator->get($hydrator);
-            } else if (class_exists($hydrator)) {
-                $hydrator = new $hydrator;
-            } else {
-                throw new \RuntimeException('Hydrator could not be found');
-            }
-            $crudManager->setDefaultHydrator($hydrator);
+        if ($options->getDefaultHydrator()) {
+            $crudManager->setDefaultHydrator($this->get($options->getDefaultHydrator(), $serviceLocator));
         }
 
-        $mapper = $options->getDefaultMapper();
-        if ($mapper) {
-            if (is_string($mapper) && $serviceLocator->has($mapper)) {
-                $mapper = $serviceLocator->get($mapper);
-            } else if (class_exists($mapper)) {
-                $mapper = new $mapper;
-            } else {
-                throw new \RuntimeException('Mapper could not be found');
-            }
-            $crudManager->setDefaultMapper($mapper);
+        if ($options->getDefaultMapper()) {
+            $crudManager->setDefaultMapper($this->get($options->getDefaultMapper(), $serviceLocator));
         }
 
-        $builder = $options->getFormBuilder();
-        if ($builder) {
-            if (is_string($builder) && $serviceLocator->has($builder)) {
-                $builder = $serviceLocator->get($builder);
-            } else if (class_exists($mapper)) {
-                $builder = new $builder;
-            } else {
-                throw new \RuntimeException('Builder could not be found');
-            }
-            $crudManager->setFormBuilder($builder);
+        if ($options->getFormBuilder()) {
+            $crudManager->setFormBuilder($this->get($options->getFormBuilder(), $serviceLocator));
         }
 
         return $crudManager;
+    }
+
+    /**
+     * Generic method for getting from service locator, or creating a class.
+     *
+     * @param ServiceLocatorInterface $serviceLocator
+     * @param string $input
+     * @throws \RuntimeException if the resource could not be found
+     * @return mixed
+     */
+    protected function get($input, ServiceLocatorInterface $serviceLocator)
+    {
+        if (is_string($input) && $serviceLocator->has($input)) {
+            return $serviceLocator->get($input);
+        } else if (class_exists($input)) {
+            return new $input;
+        }
+
+        throw new \RuntimeException('Builder could not be found');
     }
 }

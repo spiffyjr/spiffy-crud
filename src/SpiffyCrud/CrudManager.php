@@ -335,15 +335,15 @@ class CrudManager implements ServiceLocatorAwareInterface
             }
         } else {
             $builder = $this->getFormBuilder();
-
-            $form = $builder->createForm($entity);
-            $form->setHydrator($this->getHydratorFromModel($model));
+            $form    = $builder->createForm($entity);
         }
+
 
         if (!$form instanceof Form) {
             throw new \RuntimeException('Model forms should be a string or instance of Zend\Form\Form');
         }
 
+        $form->setHydrator($this->getHydratorFromModel($model));
         $form->bind($entity);
 
         return $form;
