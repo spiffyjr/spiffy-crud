@@ -1,3 +1,8 @@
 <h1>Details for <?php echo $name; ?></h1>
 
+<?php
+/** @var $renderer \SpiffyCrud\Renderer\RendererInterface */
+echo $renderer->render($model, $data);
+?>
+
 <a href="<?php echo $this->url('spiffycrud'); ?>">Back to List</a>

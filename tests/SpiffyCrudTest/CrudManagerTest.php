@@ -199,6 +199,29 @@ class CrudManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $this->manager->read($model, 1));
     }
 
+    public function testReadAll()
+    {
+        $mapper = new SimpleArray(array(
+            array('foo' => 1, 'bar' => 'test'),
+            array('foo' => 2, 'bar' => 'test2')
+        ));
+
+        $entity = new SimpleEntity();
+        $entity->setFoo(1)
+               ->setBar('test');
+
+        $entity2 = new SimpleEntity();
+        $entity2->setFoo(2)
+                ->setBar('test2');
+
+        $expected = array($entity, $entity2);
+
+        $model = new SimpleModel();
+        $model->setMapper($mapper);
+
+        $this->assertEquals($expected, $this->manager->readAll($model));
+    }
+
     public function testFormIsUsedDirectly()
     {
         $form  = new SimpleForm();

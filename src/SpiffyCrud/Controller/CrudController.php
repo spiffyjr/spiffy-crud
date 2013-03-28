@@ -4,6 +4,7 @@ namespace SpiffyCrud\Controller;
 
 use DoctrineModule\Stdlib\Hydrator\DoctrineObject;
 use SpiffyCrud\CrudManager;
+use SpiffyCrud\Renderer\Datatable;
 use Zend\Mvc\Controller\AbstractActionController;
 
 class CrudController extends AbstractActionController
@@ -50,8 +51,10 @@ class CrudController extends AbstractActionController
         $model    = $manager->getModelManager()->get($this->params('name'));
 
         return array(
-            'model' => $model,
-            'name'  => $names[$this->params('name')]
+            'model'    => $model,
+            'name'     => $names[$this->params('name')],
+            'data'     => $manager->read($model),
+            'renderer' => new Datatable()
         );
     }
 

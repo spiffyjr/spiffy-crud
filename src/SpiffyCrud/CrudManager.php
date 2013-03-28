@@ -189,6 +189,20 @@ class CrudManager implements ServiceLocatorAwareInterface
 
     /**
      * @param AbstractModel $model
+     * @param string|integer|null $id
+     * @return mixed
+     */
+    public function readAll(AbstractModel $model)
+    {
+        $entity   = $this->getEntityFromModel($model);
+        $hydrator = $this->getHydratorFromModel($model);
+        $mapper   = $this->getMapperFromModel($model);
+
+        return $mapper->readAll($entity, $hydrator, $model->getMapperOptions());
+    }
+
+    /**
+     * @param AbstractModel $model
      * @param array $data
      * @return object
      */
@@ -309,6 +323,7 @@ class CrudManager implements ServiceLocatorAwareInterface
      * @param AbstractModel $model
      * @param null|object $entity
      * @throws \RuntimeException if no form can be created or found from form manager
+     * @throws \InvalidArgumentException when entity supplied does not match model entity class
      * @return \Zend\Form\Form
      */
     public function getFormFromModel(AbstractModel $model, $entity = null)
