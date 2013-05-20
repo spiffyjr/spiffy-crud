@@ -2,7 +2,7 @@
 
 $moduleConfig = include __DIR__ . '/module.config.php';
 $testConfig   = array(
-    'spiffycrud' => array(
+    'spiffy-crud' => array(
         'forms'  => array(
             'invokables' => array(
                 'simpleInvokable' => 'SpiffyCrudTest\Asset\SimpleForm',

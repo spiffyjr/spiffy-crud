@@ -4,8 +4,9 @@ namespace SpiffyCrud\View\Helper;
 
 use SpiffyCrud\Model\AbstractModel;
 use SpiffyDatatables\Column\Collection;
+use SpiffyDatatables\DataResult;
 use SpiffyDatatables\Datatable as SpiffyDatatable;
-use SpiffyDatatables\DatatableOptions;
+use SpiffyDatatables\Options as DatatableOptions;
 use Zend\View\Helper\AbstractHelper;
 
 class Datatable extends AbstractHelper implements HelperInterface
@@ -29,7 +30,7 @@ class Datatable extends AbstractHelper implements HelperInterface
         }
 
         $this->datatable->setColumns(Collection::factory($this->detectColumns($model, $data)));
-        $this->datatable->setStaticData($data);
+        $this->datatable->setDataResult(new DataResult($data, count($data)));
 
         return $this->getView()->datatable('crudlist', $this->datatable);
     }

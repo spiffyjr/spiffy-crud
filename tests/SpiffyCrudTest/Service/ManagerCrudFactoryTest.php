@@ -21,7 +21,7 @@ class ManagerCrudFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $sm     = SpiffyTest::getInstance()->getServiceManager();
         $config = $sm->get('Configuration');
-        $config['spiffycrud']['default_mapper'] = 'SpiffyCrud\Mapper\SimpleArray';
+        $config['spiffy-crud']['default_mapper'] = 'SpiffyCrud\Mapper\SimpleArray';
         $sm->setAllowOverride(true);
         $sm->setService('Configuration', $config);
 
@@ -33,7 +33,7 @@ class ManagerCrudFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $sm     = SpiffyTest::getInstance()->getServiceManager();
         $config = $sm->get('Configuration');
-        $config['spiffycrud']['default_mapper'] = 'SpiffyCrudMapperDoctrineObject';
+        $config['spiffy-crud']['default_mapper'] = 'SpiffyCrudMapperDoctrineObject';
         $sm->setAllowOverride(true);
         $sm->setService('Configuration', $config);
 

@@ -65,7 +65,10 @@ class CrudController extends AbstractActionController
         $entity  = $manager->read($model, $this->params('id'));
         $form    = $manager->getFormFromModel($model, $entity);
 
-        $hydrator = new DoctrineObject($this->getServiceLocator()->get('Doctrine\ORM\EntityManager'), 'ZamUser\Entity\User');
+        $hydrator = new DoctrineObject(
+            $this->getServiceLocator()->get('Doctrine\ORM\EntityManager'),
+            $model->getEntityClass()
+        );
         $form->setHydrator($hydrator);
 
         return array(
