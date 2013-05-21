@@ -1,9 +1,9 @@
-<h1>Update</h1>
+<h1>Create</h1>
 
 <?php
 /** @var \Zend\Form\Form $form */
 $form->prepare();
-$form->setAttribute('action', $this->url('spiffy-crud/update', array('name' => $name, 'id' => $entity->getId())));
+$form->setAttribute('action', $this->url('spiffy-crud/create', array('name' => $name)));
 $form->setAttribute('method', 'post');
 ?>
 

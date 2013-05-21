@@ -28,18 +28,19 @@ class DoctrineObject implements MapperInterface
      */
     public function readAll($entityPrototype, HydratorInterface $hydrator = null, array $options = array())
     {
-        return $this->objectManager->getRepository(get_class($entityPrototype))->findAll();
+        return $this->objectManager->getRepository($entityPrototype)->findAll();
     }
 
     /**
-     * @param object $entity
+     * @param string $entityPrototype
      * @param string|integer $id
-     * @param null|HydratorInterface $hydrator
+     * @param HydratorInterface $hydrator
+     * @param array $options
      * @return object
      */
-    public function read($entity, $id, HydratorInterface $hydrator = null)
+    public function read($entityPrototype, $id, HydratorInterface $hydrator, array $options = array())
     {
-        return $this->objectManager->getRepository(get_class($entity))->find($id);
+        return $this->objectManager->getRepository($entityPrototype)->find($id);
     }
 
     /**
@@ -54,29 +55,26 @@ class DoctrineObject implements MapperInterface
     }
 
     /**
-     * @param string|integer $where
-     * @param string $entityPrototype
+     * @param object $entity
      * @param array $options
-     * @return void
+     * @return mixed
      */
-    public function delete($where, $entityPrototype, array $options = array())
+    public function delete($entity, array $options = array())
     {
-        $entity = $this->read(new $entityPrototype, $where, null);
         $this->objectManager->remove($entity);
         $this->objectManager->flush();
     }
 
     /**
      * @param object $entity
-     * @param mixed|null $where
-     * @param null|HydratorInterface $hydrator
      * @param array $options
-     * @return object
+     * @return mixed
      */
-    public function update($entity, $where = null, HydratorInterface $hydrator = null, array $options = array())
+    public function update($entity, array $options = array())
     {
         return $this->persist($entity);
     }
+
 
     /**
      * @param object $entity

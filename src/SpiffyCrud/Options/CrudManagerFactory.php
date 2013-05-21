@@ -1,12 +1,12 @@
 <?php
 
-namespace SpiffyCrud\Service;
+namespace SpiffyCrud\Options;
 
 use SpiffyCrud\Mapper\MapperInterface;
 use Zend\Stdlib\AbstractOptions;
 use Zend\Stdlib\Hydrator\HydratorInterface;
 
-class ManagerCrudFactoryOptions extends AbstractOptions
+class CrudManagerFactory extends AbstractOptions
 {
     /**
      * A string with a service locator resource or a HydratorInterface to
@@ -33,13 +33,6 @@ class ManagerCrudFactoryOptions extends AbstractOptions
     protected $formBuilder = 'SpiffyCrudBuilderDoctrineOrm';
 
     /**
-     * The service manager configuration for the form manager.
-     *
-     * @var array
-     */
-    protected $forms;
-
-    /**
      * The service manager configuration for the model manager.
      *
      * @var array
@@ -48,6 +41,7 @@ class ManagerCrudFactoryOptions extends AbstractOptions
 
     /**
      * @param string $formBuilder
+     * @return CrudManagerFactory
      */
     public function setFormBuilder($formBuilder)
     {
@@ -65,7 +59,7 @@ class ManagerCrudFactoryOptions extends AbstractOptions
 
     /**
      * @param array $models
-     * @return ManagerCrudFactoryOptions
+     * @return CrudManagerFactory
      */
     public function setModels($models)
     {
@@ -82,26 +76,8 @@ class ManagerCrudFactoryOptions extends AbstractOptions
     }
 
     /**
-     * @param array $forms
-     * @return ManagerCrudFactoryOptions
-     */
-    public function setForms($forms)
-    {
-        $this->forms = $forms;
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getForms()
-    {
-        return $this->forms;
-    }
-
-    /**
      * @param \SpiffyCrud\Mapper\MapperInterface|string $defaultMapper
-     * @return ManagerCrudFactoryOptions
+     * @return CrudManagerFactory
      */
     public function setDefaultMapper($defaultMapper)
     {
@@ -119,7 +95,7 @@ class ManagerCrudFactoryOptions extends AbstractOptions
 
     /**
      * @param string|\Zend\Stdlib\Hydrator\HydratorInterface $defaultHydrator
-     * @return ManagerCrudFactoryOptions
+     * @return CrudManagerFactory
      */
     public function setDefaultHydrator($defaultHydrator)
     {

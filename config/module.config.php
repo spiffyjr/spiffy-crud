@@ -5,7 +5,6 @@ return array(
     ),
 
     'spiffy-crud' => array(
-        'forms'  => array(),
         'models' => array(),
     ),
 
@@ -17,8 +16,9 @@ return array(
 
     'view_manager' => array(
         'template_map' => array(
-            'spiffy-crud/crud/index'   => __DIR__ . '/../view/spiffy-crud/crud/index.phtml',
+            'spiffy-crud/crud/create'  => __DIR__ . '/../view/spiffy-crud/crud/create.phtml',
             'spiffy-crud/crud/details' => __DIR__ . '/../view/spiffy-crud/crud/details.phtml',
+            'spiffy-crud/crud/index'   => __DIR__ . '/../view/spiffy-crud/crud/index.phtml',
             'spiffy-crud/crud/update'  => __DIR__ . '/../view/spiffy-crud/crud/update.phtml',
         )
     )

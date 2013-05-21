@@ -15,12 +15,13 @@ interface MapperInterface
     public function readAll($entityPrototype, HydratorInterface $hydrator, array $options = array());
 
     /**
-     * @param object $entity
+     * @param string $entityPrototype
      * @param string|integer $id
      * @param HydratorInterface $hydrator
+     * @param array $options
      * @return object
      */
-    public function read($entity, $id, HydratorInterface $hydrator);
+    public function read($entityPrototype, $id, HydratorInterface $hydrator, array $options = array());
 
     /**
      * @param object $entity
@@ -31,19 +32,16 @@ interface MapperInterface
     public function create($entity, HydratorInterface $hydrator, array $options = array());
 
     /**
-     * @param string|integer $where
-     * @param string $entityPrototype
+     * @param object $entity
      * @param array $options
-     * @return void
+     * @return mixed
      */
-    public function delete($where, $entityPrototype, array $options = array());
+    public function delete($entity, array $options = array());
 
     /**
      * @param object $entity
-     * @param mixed|null $where
-     * @param HydratorInterface $hydrator
      * @param array $options
-     * @return object
+     * @return mixed
      */
-    public function update($entity, $where = null, HydratorInterface $hydrator, array $options = array());
+    public function update($entity, array $options = array());
 }

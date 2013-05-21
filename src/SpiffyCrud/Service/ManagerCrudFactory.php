@@ -3,9 +3,7 @@
 namespace SpiffyCrud\Service;
 
 use SpiffyCrud\CrudManager;
-use SpiffyCrud\FormManager;
-use SpiffyCrud\ModelManager;
-use Zend\ServiceManager\Config;
+use SpiffyCrud\Options\CrudManagerFactory as CrudManagerFactoryOptions;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
@@ -19,16 +17,11 @@ class ManagerCrudFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $config  = $serviceLocator->get('Configuration');
-        $options = new ManagerCrudFactoryOptions(isset($config['spiffy-crud']) ? $config['spiffy-crud'] : array());
+        $config = $serviceLocator->get('Configuration');
+        $config = isset($config['spiffy-crud']) ? $config['spiffy-crud'] : array();
 
-        $formManager  = new FormManager(new Config($options->getForms()));
-        $modelManager = new ModelManager(new Config($options->getModels()));
-        $crudManager  = new CrudManager($modelManager, $formManager);
-
-        // set the parent locators
-        $modelManager->setServiceLocator($serviceLocator);
-        $formManager->setServiceLocator($serviceLocator);
+        $options     = new CrudManagerFactoryOptions($config);
+        $crudManager = new CrudManager();
         $crudManager->setServiceLocator($serviceLocator);
 
         if ($options->getDefaultHydrator()) {
@@ -41,6 +34,10 @@ class ManagerCrudFactory implements FactoryInterface
 
         if ($options->getFormBuilder()) {
             $crudManager->setFormBuilder($this->get($options->getFormBuilder(), $serviceLocator));
+        }
+
+        foreach($options->getModels() as $modelName => $model) {
+            $crudManager->addModel($modelName, $this->get($model, $serviceLocator));
         }
 
         return $crudManager;

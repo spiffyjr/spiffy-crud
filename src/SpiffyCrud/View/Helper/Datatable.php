@@ -21,7 +21,7 @@ class Datatable extends AbstractHelper implements HelperInterface
         $this->datatable = new SpiffyDatatable();
     }
 
-    public function __invoke(AbstractModel $model, array $data)
+    public function __invoke(AbstractModel $model, $name, array $data)
     {
         $options = $model->getViewOptions();
 
@@ -29,7 +29,16 @@ class Datatable extends AbstractHelper implements HelperInterface
             $this->datatable->setOptions(new DatatableOptions($options['options']));
         }
 
-        $this->datatable->setColumns(Collection::factory($this->detectColumns($model, $data)));
+        $columns = $this->detectColumns($model, $data);
+        $columns[] = array(
+            'sTitle'  => 'Admin',
+            'mRender' => 'function(i, j, row) {
+                return "<a href=\"/crud/'. $name . '/" + row.id + "/update\">edit</a> " +
+                       "<a href=\"/crud/'. $name . '/" + row.id + "/delete\">delete</a>";
+            }'
+        );
+
+        $this->datatable->setColumns(Collection::factory($columns));
         $this->datatable->setDataResult(new DataResult($data, count($data)));
 
         return $this->getView()->datatable('crudlist', $this->datatable);
@@ -58,6 +67,7 @@ class Datatable extends AbstractHelper implements HelperInterface
                 'mData'  => $property->getName()
             );
         }
+
         return $columns;
     }
 }

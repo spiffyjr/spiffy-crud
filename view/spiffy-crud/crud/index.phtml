@@ -4,10 +4,10 @@ Below is a listing of all your registered models. Simply click a model name to b
 <h2>Registered Models</h2>
 
 <ul>
-<?php foreach($this->models as $name => $canonicalName) : ?>
+<?php foreach($this->models as $modelName => $model) : ?>
     <li>
-        <a href="<?php echo $this->url('spiffy-crud/details', array('name' => $canonicalName));?>">
-            <?php echo $name; ?>
+        <a href="<?php echo $this->url('spiffy-crud/details', array('name' => $manager->getModelCanonicalName($model)));?>">
+            <?php echo $modelName; ?>
         </a>
     </li>
 <?php endforeach; ?>

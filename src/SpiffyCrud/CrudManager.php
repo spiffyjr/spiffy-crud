@@ -2,7 +2,6 @@
 
 namespace SpiffyCrud;
 
-use SpiffyCrud\Form\Annotation\ModelListener;
 use SpiffyCrud\Mapper\MapperInterface;
 use SpiffyCrud\Model\AbstractModel;
 use Zend\Form\Annotation\AnnotationBuilder;
@@ -22,6 +21,11 @@ class CrudManager implements ServiceLocatorAwareInterface
     protected $defaultHydrator;
 
     /**
+     * @var array
+     */
+    protected $canonicalModelNames = array();
+
+    /**
      * @var MapperInterface
      */
     protected $defaultMapper;
@@ -32,14 +36,9 @@ class CrudManager implements ServiceLocatorAwareInterface
     protected $formBuilder;
 
     /**
-     * @var FormManager
+     * @var AbstractModel[]
      */
-    protected $formManager;
-
-    /**
-     * @var ModelManager
-     */
-    protected $modelManager;
+    protected $models = array();
 
     /**
      * @var ServiceLocatorInterface
@@ -47,17 +46,64 @@ class CrudManager implements ServiceLocatorAwareInterface
     protected $serviceLocator = null;
 
     /**
-     * @param ModelManager $modelManager
-     * @param FormManager $formManager
+     * @var array map of characters to be replaced through strtr
      */
-    public function __construct(ModelManager $modelManager, FormManager $formManager)
+    protected $canonicalNamesReplacements = array('-' => '', '_' => '', ' ' => '', '\\' => '', '/' => '');
+
+    /**
+     * @param string $name
+     * @param AbstractModel $model
+     * @return CrudManager
+     */
+    public function addModel($name, AbstractModel $model)
     {
-        $this->modelManager = $modelManager;
-        $this->formManager  = $formManager;
+        $this->models[$name] = $model;
+        return $this;
     }
 
     /**
-     * @param \Zend\Form\Annotation\AnnotationBuilder $formBuilder
+     * @param array $models
+     * @throws \InvalidArgumentException on invalid model name or model type
+     * @return CrudManager
+     */
+    public function setModels(array $models)
+    {
+        foreach($models as $modelName => $model) {
+            if (!is_string($modelName) || !$model instanceof AbstractModel) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Invalid model name or model for "%s"',
+                    $modelName
+                ));
+            }
+        }
+        $this->models = $models;
+        return $this;
+    }
+
+    /**
+     * @param $name
+     * @return null|AbstractModel
+     */
+    public function getModelFromCanonicalName($name)
+    {
+        foreach($this->getModels() as $model) {
+            if ($name === $this->getModelCanonicalName($model)) {
+                return $model;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @return array
+     */
+    public function getModels()
+    {
+        return $this->models;
+    }
+
+    /**
+     * @param AnnotationBuilder $formBuilder
      * @return CrudManager
      */
     public function setFormBuilder(AnnotationBuilder $formBuilder)
@@ -158,25 +204,9 @@ class CrudManager implements ServiceLocatorAwareInterface
     }
 
     /**
-     * @return \SpiffyCrud\FormManager
-     */
-    public function getFormManager()
-    {
-        return $this->formManager;
-    }
-
-    /**
-     * @return \SpiffyCrud\ModelManager
-     */
-    public function getModelManager()
-    {
-        return $this->modelManager;
-    }
-
-    /**
      * @param AbstractModel $model
      * @param string|integer $id
-     * @return mixed
+     * @return object
      */
     public function read(AbstractModel $model, $id)
     {
@@ -184,12 +214,12 @@ class CrudManager implements ServiceLocatorAwareInterface
         $hydrator = $this->getHydratorFromModel($model);
         $mapper   = $this->getMapperFromModel($model);
 
-        return $mapper->read($entity, $id, $hydrator, $model->getMapperOptions());
+        return $mapper->read(get_class($entity), $id, $hydrator, $model->getMapperOptions());
     }
 
     /**
      * @param AbstractModel $model
-     * @return mixed
+     * @return array|\Traversable
      */
     public function readAll(AbstractModel $model)
     {
@@ -197,17 +227,16 @@ class CrudManager implements ServiceLocatorAwareInterface
         $hydrator = $this->getHydratorFromModel($model);
         $mapper   = $this->getMapperFromModel($model);
 
-        return $mapper->readAll($entity, $hydrator, $model->getMapperOptions());
+        return $mapper->readAll(get_class($entity), $hydrator, $model->getMapperOptions());
     }
 
     /**
      * @param AbstractModel $model
-     * @param array $data
      * @return object
      */
-    public function create(AbstractModel $model, array $data)
+    public function create(AbstractModel $model)
     {
-        $entity   = $this->hydrateModelEntity($data, $model);
+        $entity   = $this->getEntityFromModel($model);
         $hydrator = $this->getHydratorFromModel($model);
         $mapper   = $this->getMapperFromModel($model);
 
@@ -215,29 +244,27 @@ class CrudManager implements ServiceLocatorAwareInterface
     }
 
     /**
-     * @param string|integer $id
      * @param AbstractModel $model
-     * @param array $data
      * @return object
      */
-    public function update($id, AbstractModel $model, array $data)
+    public function update(AbstractModel $model)
     {
-        $entity   = $this->hydrateModelEntity($data, $model);
-        $hydrator = $this->getHydratorFromModel($model);
-        $mapper   = $this->getMapperFromModel($model);
+        $entity = $this->getEntityFromModel($model);
+        $mapper = $this->getMapperFromModel($model);
 
-        return $mapper->update($entity, $id, $hydrator, $model->getMapperOptions());
+        return $mapper->update($entity, $model->getMapperOptions());
     }
 
     /**
-     * @param mixed $id
      * @param AbstractModel $model
      * @return void
      */
-    public function delete($id, AbstractModel $model)
+    public function delete(AbstractModel $model)
     {
         $mapper = $this->getMapperFromModel($model);
-        $mapper->delete($id, $model->getMapperOptions());
+        $entity = $this->getEntityFromModel($model);
+
+        $mapper->delete($entity, $model->getMapperOptions());
     }
 
     /**
@@ -263,6 +290,32 @@ class CrudManager implements ServiceLocatorAwareInterface
         $hydrator = $this->getHydratorFromModel($model);
 
         return $hydrator->extract($entity);
+    }
+
+    /**
+     * Gets the name of a model.
+     *
+     * @param AbstractModel $model
+     * @return false|string
+     */
+    public function getModelName(AbstractModel $model)
+    {
+        return array_search($model, $this->models, true);
+    }
+
+    /**
+     * @param AbstractModel $model
+     * @return string
+     */
+    public function getModelCanonicalName(AbstractModel $model)
+    {
+        $name = $this->getModelName($model);
+
+        if (isset($this->canonicalModelNames[$name])) {
+            return $this->canonicalModelNames[$name];
+        }
+
+        return $this->canonicalModelNames[$name] = strtolower(strtr($name, $this->canonicalNamesReplacements));
     }
 
     /**
@@ -340,8 +393,8 @@ class CrudManager implements ServiceLocatorAwareInterface
         if ($form instanceof Form) {
             return $form;
         } else if (is_string($form)) {
-            if ($this->formManager->has($form)) {
-                $form = $this->formManager->get($form);
+            if ($this->getServiceLocator()->has($form)) {
+                $form = $this->getServiceLocator()->get($form);
             } else if (class_exists($form)) {
                 $form = new $form;
             } else {
@@ -350,13 +403,18 @@ class CrudManager implements ServiceLocatorAwareInterface
         } else {
             $builder = $this->getFormBuilder();
             $form    = $builder->createForm($entity);
+            $form->add(array(
+                'name' => 'submit',
+                'type' => 'submit',
+                'attributes' => array(
+                    'value' => 'Submit'
+                )
+            ));
         }
-
 
         if (!$form instanceof Form) {
             throw new \RuntimeException('Model forms should be a string or instance of Zend\Form\Form');
         }
-
         $form->setHydrator($this->getHydratorFromModel($model));
         $form->bind($entity);
 

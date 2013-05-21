@@ -1,5 +1,15 @@
 <h1>Details for <?php echo $name; ?></h1>
 
-<?php echo $this->crudlist($model, $data); ?>
+<p>
+    <a href="<?php echo $this->url('spiffy-crud/create', array('name' => $name)); ?>">Create</a>
+</p>
 
-<a href="<?php echo $this->url('spiffy-crud'); ?>">Back to List</a>
+<?php echo $this->crudlist($model, $canonicalName, $data); ?>
+
+<p style="clear:left;">
+    <a href="<?php echo $this->url('spiffy-crud'); ?>">Back to List</a>
+</p>
+
+<p>
+    <a href="<?php echo $this->url('spiffy-crud/create', array('name' => $canonicalName)); ?>">Create</a>
+</p>
