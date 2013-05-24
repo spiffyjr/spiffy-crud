@@ -22,8 +22,8 @@
     },
     "autoload": {
         "psr-0": {
-            "SpiffyCrud\\": "src/",
-            "SpiffyCrudTest\\": "test/"
+            "SpiffyCrud": "src/",
+            "SpiffyCrudTest": "test/"
         }
     },
     "extra": {
