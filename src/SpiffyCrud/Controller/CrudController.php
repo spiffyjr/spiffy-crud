@@ -4,7 +4,6 @@ namespace SpiffyCrud\Controller;
 
 use DoctrineModule\Stdlib\Hydrator\DoctrineObject;
 use SpiffyCrud\CrudManager;
-use SpiffyCrud\Renderer\Datatable;
 use Zend\Http\Response;
 use Zend\Mvc\Controller\AbstractActionController;
 
@@ -36,31 +35,40 @@ class CrudController extends AbstractActionController
         return $this->crudManager;
     }
 
+    /**
+     * @return array
+     */
     public function indexAction()
     {
         return array(
             'manager' => $this->getCrudManager(),
-            'models'  => $this->getCrudManager()->getModels()
+            'models'  => $this->getCrudManager()->getModelsAsGroup(),
         );
     }
 
+    /**
+     * @return array
+     */
     public function detailsAction()
     {
         $manager = $this->getCrudManager();
-        $model   = $manager->getModelFromCanonicalName($this->params('name'));
+        $model   = $manager->getModel($this->params('name'));
 
         return array(
             'model'         => $model,
-            'canonicalName' => $manager->getModelCanonicalName($model),
-            'name'          => $manager->getModelName($model),
+            'canonicalName' => $manager->canonicalize(get_class($model)),
+            'name'          => $model->getName(),
             'data'          => $manager->readAll($model)
         );
     }
 
+    /**
+     * @return array|Response
+     */
     public function createAction()
     {
         $manager = $this->getCrudManager();
-        $model   = $manager->getModelFromCanonicalName($this->params('name'));
+        $model   = $manager->getModel($this->params('name'));
         $form    = $manager->getFormFromModel($model);
         $prg     = $this->prg();
 
@@ -73,7 +81,7 @@ class CrudController extends AbstractActionController
                 $this->getCrudManager()->create($model);
 
                 return $this->redirect()->toRoute(
-                    'spiffy-crud/details',
+                    'spiffy_crud/details',
                     array('name' => $this->params('name'))
                 );
             }
@@ -86,25 +94,31 @@ class CrudController extends AbstractActionController
         );
     }
 
+    /**
+     * @return Response
+     */
     public function deleteAction()
     {
         $manager = $this->getCrudManager();
-        $model   = $manager->getModelFromCanonicalName($this->params('name'));
+        $model   = $manager->getModel($this->params('name'));
         $entity  = $manager->read($model, $this->params('id'));
 
         $model->setEntity($entity);
         $manager->delete($model);
 
         return $this->redirect()->toRoute(
-            'spiffy-crud/details',
+            'spiffy_crud/details',
             array('name' => $this->params('name'))
         );
     }
 
+    /**
+     * @return array|Response
+     */
     public function updateAction()
     {
         $manager = $this->getCrudManager();
-        $model   = $manager->getModelFromCanonicalName($this->params('name'));
+        $model   = $manager->getModel($this->params('name'));
         $entity  = $manager->read($model, $this->params('id'));
         $form    = $manager->getFormFromModel($model, $entity);
         $prg     = $this->prg();
@@ -115,10 +129,11 @@ class CrudController extends AbstractActionController
             $form->setData($prg);
 
             if ($form->isValid()) {
+                $model->setEntity($entity);
                 $this->getCrudManager()->update($model);
 
                 return $this->redirect()->toRoute(
-                    'spiffy-crud/details',
+                    'spiffy_crud/details',
                     array('name' => $this->params('name'))
                 );
             }

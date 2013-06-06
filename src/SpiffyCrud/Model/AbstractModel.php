@@ -8,6 +8,20 @@ use Zend\Stdlib\Hydrator\HydratorInterface;
 abstract class AbstractModel extends AbstractOptions
 {
     /**
+     * Name to distinguish this model.
+     *
+     * @var string
+     */
+    protected $name;
+
+    /**
+     * The group name, if any, that this model belongs to.
+     *
+     * @var string
+     */
+    protected $groupName;
+
+    /**
      * The hydrator used to hydrate/extract data from the entity.
      *
      * @var \Zend\Stdlib\Hydrator\HydratorInterface|null
@@ -55,6 +69,30 @@ abstract class AbstractModel extends AbstractOptions
      * @var string|\Zend\Form\Form
      */
     protected $form;
+
+    /**
+     * Post-construction initialization.
+     */
+    public function init()
+    {}
+
+    /**
+     * @param string $name
+     * @return AbstractModel
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
 
     /**
      * @param string $class
@@ -180,5 +218,23 @@ abstract class AbstractModel extends AbstractOptions
     public function getEntity()
     {
         return $this->entity;
+    }
+
+    /**
+     * @param string $groupName
+     * @return AbstractModel
+     */
+    public function setGroupName($groupName)
+    {
+        $this->groupName = $groupName;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getGroupName()
+    {
+        return $this->groupName;
     }
 }

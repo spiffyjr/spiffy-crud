@@ -18,7 +18,7 @@ class ManagerCrudFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $config = $serviceLocator->get('Configuration');
-        $config = isset($config['spiffy-crud']) ? $config['spiffy-crud'] : array();
+        $config = isset($config['spiffy_crud']) ? $config['spiffy_crud'] : array();
 
         $options     = new CrudManagerFactoryOptions($config);
         $crudManager = new CrudManager();
@@ -36,8 +36,11 @@ class ManagerCrudFactory implements FactoryInterface
             $crudManager->setFormBuilder($this->get($options->getFormBuilder(), $serviceLocator));
         }
 
-        foreach($options->getModels() as $modelName => $model) {
-            $crudManager->addModel($modelName, $this->get($model, $serviceLocator));
+        foreach($options->getModels() as $model) {
+            if (null === $model) {
+                continue;
+            }
+            $crudManager->addModel($this->get($model, $serviceLocator));
         }
 
         return $crudManager;

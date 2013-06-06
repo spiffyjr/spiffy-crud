@@ -12,6 +12,7 @@ class MapperDoctrineObjectFactory implements FactoryInterface
      * Create service
      *
      * @param ServiceLocatorInterface $serviceLocator
+     * @throws \RuntimeException
      * @return mixed
      */
     public function createService(ServiceLocatorInterface $serviceLocator)

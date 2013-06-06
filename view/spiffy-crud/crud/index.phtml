@@ -1,14 +1,26 @@
-<h1>Crud Manager</h1>
-Below is a listing of all your registered models. Simply click a model name to begin management.
+<?php foreach($this->models as $groupName => $models) : ?>
+    <?php if ($groupName === \SpiffyCrud\CrudManager::UNGROUPED_NAME) continue; ?>
+    <h2><?php echo $groupName;?></h2>
+    <ul>
+    <?php foreach ($models as $canonicalName => $model) : ?>
+        <li>
+            <a href="<?php echo $this->url('spiffy_crud/details', array('name' => $canonicalName));?>">
+                <?php echo $model->getName(); ?>
+            </a>
+        </li>
+    <?php endforeach; ?>
+    </ul>
+<?php endforeach; ?>
 
-<h2>Registered Models</h2>
-
+<?php if (!empty($this->models[\SpiffyCrud\CrudManager::UNGROUPED_NAME])) : ?>
+<h3>Remaining models</h3>
 <ul>
-<?php foreach($this->models as $modelName => $model) : ?>
+<?php foreach($this->models[\SpiffyCrud\CrudManager::UNGROUPED_NAME] as $canonicalName => $model) : ?>
     <li>
-        <a href="<?php echo $this->url('spiffy-crud/details', array('name' => $manager->getModelCanonicalName($model)));?>">
-            <?php echo $modelName; ?>
+        <a href="<?php echo $this->url('spiffy_crud/details', array('name' => $canonicalName));?>">
+            <?php echo $model->getName(); ?>
         </a>
     </li>
 <?php endforeach; ?>
 </ul>
+<?php endif; ?>

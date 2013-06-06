@@ -53,15 +53,15 @@ class SimpleArray implements MapperInterface
     }
 
     /**
-     * @param object $entity
+     * @param object $entityPrototype
      * @param string|integer $id
      * @param HydratorInterface $hydrator
+     * @param array $options
      * @return object
      */
-    public function read($entity, $id, HydratorInterface $hydrator)
+    public function read($entityPrototype, $id, HydratorInterface $hydrator, array $options = array())
     {
-        $this->checkIndex($id);
-        return $hydrator->hydrate($this->data[$id], $entity);
+        return $hydrator->hydrate($this->data[$id], $entityPrototype);
     }
 
     /**
@@ -77,43 +77,37 @@ class SimpleArray implements MapperInterface
     }
 
     /**
-     * @param string|integer $where
-     * @param null|string $entityPrototype
+     * @param object $entity
      * @param array $options
-     * @return void
+     * @return mixed
      */
-    public function delete($where, $entityPrototype = null, array $options = array())
+    public function delete($entity, array $options = array())
     {
-        $this->checkIndex($where);
-        unset($this->data[$where]);
+        unset($this->data[$this->getEntityIndex($entity)]);
     }
 
     /**
      * @param object $entity
-     * @param mixed|null $where
-     * @param HydratorInterface $hydrator
      * @param array $options
-     * @return object
+     * @return mixed
      */
-    public function update($entity, $where = null, HydratorInterface $hydrator, array $options = array())
+    public function update($entity, array $options = array())
     {
-        $this->checkIndex($where);
-        $this->data[$where] = $hydrator->extract($entity);
+        $this->data[$this->getEntityIndex($entity)] = $entity;
         return $entity;
     }
 
     /**
-     * @param string|integer $index
-     * @throws \InvalidArgumentException on missing or invalid index
-     * @throws \OutOfBoundsException if the index is out of bounds
+     * @param object $entity
+     * @return null|int
      */
-    protected function checkIndex($index)
+    protected function getEntityIndex($entity)
     {
-        if (!is_string($index) && !is_int($index)) {
-            throw new \InvalidArgumentException('invalid index type');
+        foreach ($this->data as $index => $data) {
+            if ($entity === $data) {
+                return $index;
+            }
         }
-        if (!isset($this->data[$index])) {
-            throw new \OutOfBoundsException('invalid index');
-        }
+        return null;
     }
 }

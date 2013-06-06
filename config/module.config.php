@@ -4,7 +4,7 @@ return array(
         'routes' => include __DIR__ . '/route.config.php'
     ),
 
-    'spiffy-crud' => array(
+    'spiffy_crud' => array(
         'models' => array(),
     ),
 

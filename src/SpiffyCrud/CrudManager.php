@@ -7,7 +7,6 @@ use SpiffyCrud\Model\AbstractModel;
 use Zend\Form\Annotation\AnnotationBuilder;
 use Zend\Form\Form;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
-use Zend\ServiceManager\ServiceLocatorAwareTrait;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\ServiceManager;
 use Zend\Stdlib\Hydrator\ClassMethods;
@@ -15,15 +14,12 @@ use Zend\Stdlib\Hydrator\HydratorInterface;
 
 class CrudManager implements ServiceLocatorAwareInterface
 {
+    const UNGROUPED_NAME = '__UNGROUPED__';
+
     /**
      * @var HydratorInterface
      */
     protected $defaultHydrator;
-
-    /**
-     * @var array
-     */
-    protected $canonicalModelNames = array();
 
     /**
      * @var MapperInterface
@@ -51,47 +47,75 @@ class CrudManager implements ServiceLocatorAwareInterface
     protected $canonicalNamesReplacements = array('-' => '', '_' => '', ' ' => '', '\\' => '', '/' => '');
 
     /**
-     * @param string $name
      * @param AbstractModel $model
+     * @throws \InvalidArgumentException
      * @return CrudManager
      */
-    public function addModel($name, AbstractModel $model)
+    public function addModel(AbstractModel $model)
     {
+        $model->init();
+
+        $name = get_class($model);
+        $name = $this->canonicalize($name);
+
+        if (!$model->getName()) {
+            throw new \InvalidArgumentException(sprintf(
+                'missing model name for %s',
+                get_class($model)
+            ));
+        }
+
+        if (isset($this->models[$name])) {
+            throw new \InvalidArgumentException(sprintf(
+                'model with name "%s" (%s) is already registered',
+                $name,
+                get_class($model)
+            ));
+        }
+
         $this->models[$name] = $model;
         return $this;
     }
 
     /**
      * @param array $models
-     * @throws \InvalidArgumentException on invalid model name or model type
      * @return CrudManager
      */
     public function setModels(array $models)
     {
-        foreach($models as $modelName => $model) {
-            if (!is_string($modelName) || !$model instanceof AbstractModel) {
-                throw new \InvalidArgumentException(sprintf(
-                    'Invalid model name or model for "%s"',
-                    $modelName
-                ));
-            }
+        foreach ($models as $model) {
+            $this->addModel($model);
         }
-        $this->models = $models;
         return $this;
     }
 
     /**
-     * @param $name
-     * @return null|AbstractModel
+     * @return array
      */
-    public function getModelFromCanonicalName($name)
+    public function getModelsAsGroup()
     {
-        foreach($this->getModels() as $model) {
-            if ($name === $this->getModelCanonicalName($model)) {
-                return $model;
+        $models = $this->getModels();
+        $result = array();
+
+        /** @var AbstractModel $model */
+        foreach ($models as $canonicalName => $model) {
+            if ($model->getGroupName()) {
+                $result[$model->getGroupName()][$canonicalName] = $model;
+            } else {
+                $result[self::UNGROUPED_NAME][$canonicalName] = $model;
             }
         }
-        return null;
+        return $result;
+    }
+
+    /**
+     * @param $name
+     * @return null|\SpiffyCrud\Model\AbstractModel
+     */
+    public function getModel($name)
+    {
+        $canonicalName = $this->canonicalize($name);
+        return isset($this->models[$canonicalName]) ? $this->models[$canonicalName] : null;
     }
 
     /**
@@ -186,24 +210,6 @@ class CrudManager implements ServiceLocatorAwareInterface
     }
 
     /**
-     * @param $name
-     * @return \Zend\Form\Form
-     */
-    public function getForm($name)
-    {
-        return $this->getFormManager()->get($name);
-    }
-
-    /**
-     * @param $name
-     * @return Model\AbstractModel
-     */
-    public function getModel($name)
-    {
-        return $this->getModelManager()->get($name);
-    }
-
-    /**
      * @param AbstractModel $model
      * @param string|integer $id
      * @return object
@@ -293,29 +299,12 @@ class CrudManager implements ServiceLocatorAwareInterface
     }
 
     /**
-     * Gets the name of a model.
-     *
-     * @param AbstractModel $model
-     * @return false|string
-     */
-    public function getModelName(AbstractModel $model)
-    {
-        return array_search($model, $this->models, true);
-    }
-
-    /**
-     * @param AbstractModel $model
+     * @param string $string
      * @return string
      */
-    public function getModelCanonicalName(AbstractModel $model)
+    public function canonicalize($string)
     {
-        $name = $this->getModelName($model);
-
-        if (isset($this->canonicalModelNames[$name])) {
-            return $this->canonicalModelNames[$name];
-        }
-
-        return $this->canonicalModelNames[$name] = strtolower(strtr($name, $this->canonicalNamesReplacements));
+        return strtolower(strtr($string, $this->canonicalNamesReplacements));
     }
 
     /**

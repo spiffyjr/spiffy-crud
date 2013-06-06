@@ -4,16 +4,12 @@ namespace SpiffyCrudTest\Model;
 
 use ArrayObject;
 use SpiffyCrud\CrudManager;
-use SpiffyCrud\FormManager;
 use SpiffyCrud\Mapper\SimpleArray;
-use SpiffyCrud\ModelManager;
 use SpiffyCrudTest\Asset\AdvancedEntity;
-use SpiffyCrudTest\Asset\IncludedFieldsModel;
 use SpiffyCrudTest\Asset\SimpleEntity;
 use SpiffyCrudTest\Asset\SimpleForm;
 use SpiffyCrudTest\Asset\SimpleModel;
 use SpiffyTest\Module as SpiffyTest;
-use Zend\Form\Annotation\AnnotationBuilder;
 use Zend\Stdlib\Hydrator\ClassMethods;
 
 class CrudManagerTest extends \PHPUnit_Framework_TestCase

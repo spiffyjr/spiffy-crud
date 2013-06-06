@@ -33,11 +33,11 @@ class CrudManagerFactory extends AbstractOptions
     protected $formBuilder = 'SpiffyCrudBuilderDoctrineOrm';
 
     /**
-     * The service manager configuration for the model manager.
+     * An array of models to register..
      *
      * @var array
      */
-    protected $models;
+    protected $models = array() ;
 
     /**
      * @param string $formBuilder

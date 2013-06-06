@@ -1,7 +1,7 @@
 <?php
 
 return array(
-    'spiffy-crud' => array(
+    'spiffy_crud' => array(
         'type' => 'Zend\Mvc\Router\Http\Literal',
         'options' => array(
             'route'    => '/crud',

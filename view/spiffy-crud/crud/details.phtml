@@ -1,15 +1,15 @@
 <h1>Details for <?php echo $name; ?></h1>
 
 <p>
-    <a href="<?php echo $this->url('spiffy-crud/create', array('name' => $name)); ?>">Create</a>
+    <a href="<?php echo $this->url('spiffy_crud/create', array('name' => $canonicalName)); ?>">Create</a>
 </p>
 
 <?php echo $this->crudlist($model, $canonicalName, $data); ?>
 
 <p style="clear:left;">
-    <a href="<?php echo $this->url('spiffy-crud'); ?>">Back to List</a>
+    <a href="<?php echo $this->url('spiffy_crud'); ?>">Back to List</a>
 </p>
 
 <p>
-    <a href="<?php echo $this->url('spiffy-crud/create', array('name' => $canonicalName)); ?>">Create</a>
+    <a href="<?php echo $this->url('spiffy_crud/create', array('name' => $canonicalName)); ?>">Create</a>
 </p>
