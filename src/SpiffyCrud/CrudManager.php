@@ -2,17 +2,13 @@
 
 namespace SpiffyCrud;
 
-use SpiffyCrud\Mapper\MapperInterface;
-use SpiffyCrud\Model\AbstractModel;
 use Zend\Form\Annotation\AnnotationBuilder;
 use Zend\Form\Form;
-use Zend\ServiceManager\ServiceLocatorAwareInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\ServiceManager;
 use Zend\Stdlib\Hydrator\ClassMethods;
 use Zend\Stdlib\Hydrator\HydratorInterface;
 
-class CrudManager implements ServiceLocatorAwareInterface
+class CrudManager extends ServiceManager
 {
     const UNGROUPED_NAME = '__UNGROUPED__';
 
@@ -22,9 +18,9 @@ class CrudManager implements ServiceLocatorAwareInterface
     protected $defaultHydrator;
 
     /**
-     * @var MapperInterface
+     * @var Adapter\AdapterInterface
      */
-    protected $defaultMapper;
+    protected $defaultAdapter;
 
     /**
      * @var AnnotationBuilder
@@ -32,60 +28,24 @@ class CrudManager implements ServiceLocatorAwareInterface
     protected $formBuilder;
 
     /**
-     * @var AbstractModel[]
+     * {@inheritDoc}
      */
-    protected $models = array();
-
-    /**
-     * @var ServiceLocatorInterface
-     */
-    protected $serviceLocator = null;
-
-    /**
-     * @var array map of characters to be replaced through strtr
-     */
-    protected $canonicalNamesReplacements = array('-' => '', '_' => '', ' ' => '', '\\' => '', '/' => '');
-
-    /**
-     * @param AbstractModel $model
-     * @throws \InvalidArgumentException
-     * @return CrudManager
-     */
-    public function addModel(AbstractModel $model)
+    public function get($name, $options = array(), $usePeeringServiceManagers = true)
     {
-        $model->init();
-
-        $name = get_class($model);
-        $name = $this->canonicalize($name);
-
-        if (!$model->getName()) {
-            throw new \InvalidArgumentException(sprintf(
-                'missing model name for %s',
-                get_class($model)
-            ));
-        }
-
-        if (isset($this->models[$name])) {
-            throw new \InvalidArgumentException(sprintf(
-                'model with name "%s" (%s) is already registered',
-                $name,
-                get_class($model)
-            ));
-        }
-
-        $this->models[$name] = $model;
-        return $this;
+        $instance = parent::get($name, $usePeeringServiceManagers);
+        $this->validateModel($instance);
+        return $instance;
     }
 
     /**
-     * @param array $models
-     * @return CrudManager
+     * {@inheritDoc}
      */
-    public function setModels(array $models)
+    public function setService($name, $service, $shared = true)
     {
-        foreach ($models as $model) {
-            $this->addModel($model);
+        if ($service) {
+            $this->validateModel($service);
         }
+        parent::setService($name, $service, $shared);
         return $this;
     }
 
@@ -94,36 +54,22 @@ class CrudManager implements ServiceLocatorAwareInterface
      */
     public function getModelsAsGroup()
     {
-        $models = $this->getModels();
+        $models = $this->getRegisteredServices();
         $result = array();
 
-        /** @var AbstractModel $model */
-        foreach ($models as $canonicalName => $model) {
-            if ($model->getGroupName()) {
-                $result[$model->getGroupName()][$canonicalName] = $model;
-            } else {
-                $result[self::UNGROUPED_NAME][$canonicalName] = $model;
+        /** @var Model\ModelInterface $model */
+        foreach ($models as $services) {
+            foreach ($services as $service) {
+                $model = $this->get($service);
+
+                if ($model->getGroupName()) {
+                    $result[$model->getGroupName()][] = $model;
+                } else {
+                    $result[self::UNGROUPED_NAME][] = $model;
+                }
             }
         }
         return $result;
-    }
-
-    /**
-     * @param $name
-     * @return null|\SpiffyCrud\Model\AbstractModel
-     */
-    public function getModel($name)
-    {
-        $canonicalName = $this->canonicalize($name);
-        return isset($this->models[$canonicalName]) ? $this->models[$canonicalName] : null;
-    }
-
-    /**
-     * @return array
-     */
-    public function getModels()
-    {
-        return $this->models;
     }
 
     /**
@@ -148,44 +94,21 @@ class CrudManager implements ServiceLocatorAwareInterface
     }
 
     /**
-     * @param MapperInterface $defaultMapper
+     * @param Adapter\AdapterInterface $defaultAdapter
      * @return CrudManager
      */
-    public function setDefaultMapper(MapperInterface $defaultMapper)
+    public function setDefaultAdapter(Adapter\AdapterInterface $defaultAdapter)
     {
-        $this->defaultMapper = $defaultMapper;
+        $this->defaultAdapter = $defaultAdapter;
         return $this;
     }
 
     /**
-     * @return MapperInterface
+     * @return Adapter\AdapterInterface
      */
-    public function getDefaultMapper()
+    public function getDefaultAdapter()
     {
-        return $this->defaultMapper;
-    }
-
-    /**
-     * Set service locator
-     *
-     * @param ServiceLocatorInterface $serviceLocator
-     * @return mixed
-     */
-    public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
-    {
-        $this->serviceLocator = $serviceLocator;
-
-        return $this;
-    }
-
-    /**
-     * Get service locator
-     *
-     * @return ServiceLocatorInterface
-     */
-    public function getServiceLocator()
-    {
-        return $this->serviceLocator;
+        return $this->defaultAdapter;
     }
 
     /**
@@ -210,75 +133,74 @@ class CrudManager implements ServiceLocatorAwareInterface
     }
 
     /**
-     * @param AbstractModel $model
+     * @param Model\ModelInterface $model
      * @param string|integer $id
      * @return object
      */
-    public function read(AbstractModel $model, $id)
+    public function findEntity(Model\ModelInterface $model, $id)
     {
         $entity   = $this->getEntityFromModel($model);
         $hydrator = $this->getHydratorFromModel($model);
-        $mapper   = $this->getMapperFromModel($model);
+        $adapter  = $this->getAdapterFromModel($model);
 
-        return $mapper->read(get_class($entity), $id, $hydrator, $model->getMapperOptions());
+        return $adapter->find(get_class($entity), $id, $hydrator, $model->getAdapterOptions());
     }
 
     /**
-     * @param AbstractModel $model
+     * @param Model\ModelInterface $model
      * @return array|\Traversable
      */
-    public function readAll(AbstractModel $model)
+    public function findAllEntities(Model\ModelInterface $model)
     {
         $entity   = $this->getEntityFromModel($model);
         $hydrator = $this->getHydratorFromModel($model);
-        $mapper   = $this->getMapperFromModel($model);
+        $adapter  = $this->getAdapterFromModel($model);
 
-        return $mapper->readAll(get_class($entity), $hydrator, $model->getMapperOptions());
+        return $adapter->findAll(get_class($entity), $hydrator, $model->getAdapterOptions());
     }
 
     /**
-     * @param AbstractModel $model
+     * @param Model\ModelInterface $model
      * @return object
      */
-    public function create(AbstractModel $model)
+    public function createEntity(Model\ModelInterface $model)
     {
         $entity   = $this->getEntityFromModel($model);
-        $hydrator = $this->getHydratorFromModel($model);
-        $mapper   = $this->getMapperFromModel($model);
+        $adapter  = $this->getAdapterFromModel($model);
 
-        return $mapper->create($entity, $hydrator, $model->getMapperOptions());
+        return $adapter->create($entity, $model->getAdapterOptions());
     }
 
     /**
-     * @param AbstractModel $model
+     * @param Model\ModelInterface $model
      * @return object
      */
-    public function update(AbstractModel $model)
+    public function updateEntity(Model\ModelInterface $model)
     {
-        $entity = $this->getEntityFromModel($model);
-        $mapper = $this->getMapperFromModel($model);
+        $entity  = $this->getEntityFromModel($model);
+        $adapter = $this->getAdapterFromModel($model);
 
-        return $mapper->update($entity, $model->getMapperOptions());
+        return $adapter->update($entity, $model->getAdapterOptions());
     }
 
     /**
-     * @param AbstractModel $model
+     * @param Model\ModelInterface $model
      * @return void
      */
-    public function delete(AbstractModel $model)
+    public function removeEntity(Model\ModelInterface $model)
     {
-        $mapper = $this->getMapperFromModel($model);
-        $entity = $this->getEntityFromModel($model);
+        $adapter = $this->getAdapterFromModel($model);
+        $entity  = $this->getEntityFromModel($model);
 
-        $mapper->delete($entity, $model->getMapperOptions());
+        $adapter->remove($entity, $model->getAdapterOptions());
     }
 
     /**
      * @param array $data
-     * @param AbstractModel $model
-     * @return AbstractModel
+     * @param Model\ModelInterface $model
+     * @return Model\ModelInterface
      */
-    public function hydrateModelEntity(array $data, AbstractModel $model)
+    public function hydrateModelEntity(array $data, Model\ModelInterface $model)
     {
         $entity   = $this->getEntityFromModel($model);
         $hydrator = $this->getHydratorFromModel($model);
@@ -287,10 +209,10 @@ class CrudManager implements ServiceLocatorAwareInterface
     }
 
     /**
-     * @param AbstractModel $model
+     * @param Model\ModelInterface $model
      * @return array
      */
-    public function extractModelEntity(AbstractModel $model)
+    public function extractModelEntity(Model\ModelInterface $model)
     {
         $entity   = $this->getEntityFromModel($model);
         $hydrator = $this->getHydratorFromModel($model);
@@ -299,20 +221,11 @@ class CrudManager implements ServiceLocatorAwareInterface
     }
 
     /**
-     * @param string $string
-     * @return string
-     */
-    public function canonicalize($string)
-    {
-        return strtolower(strtr($string, $this->canonicalNamesReplacements));
-    }
-
-    /**
-     * @param AbstractModel $model
+     * @param Model\ModelInterface $model
      * @return object
      * @throws \RuntimeException when model is missing an entity and entityClass.
      */
-    public function getEntityFromModel(AbstractModel $model)
+    public function getEntityFromModel(Model\ModelInterface $model)
     {
         if ($model->getEntity()) {
             return $model->getEntity();
@@ -327,29 +240,29 @@ class CrudManager implements ServiceLocatorAwareInterface
     }
 
     /**
-     * Gets the mapper for a model or the default is the model doesn't have one.
+     * Gets the adapter for a model or the default is the model doesn't have one.
      *
-     * @param AbstractModel $model
-     * @throws \RuntimeException if no mapper is available.
-     * @return null|MapperInterface
+     * @param Model\ModelInterface $model
+     * @throws \RuntimeException if no adapter is available.
+     * @return null|Adapter\AdapterInterface
      */
-    public function getMapperFromModel(AbstractModel $model)
+    public function getAdapterFromModel(Model\ModelInterface $model)
     {
-        if ($model->getMapper()) {
-            return $model->getMapper();
-        } else if ($this->getDefaultMapper()) {
-            return $this->getDefaultMapper();
+        if ($model->getAdapter()) {
+            return $model->getAdapter();
+        } else if ($this->getDefaultAdapter()) {
+            return $this->getDefaultAdapter();
         }
-        throw new \RuntimeException('Model does not have a mapper and default mapper was not registered');
+        throw new \RuntimeException('Model does not have a adapter and default adapter was not registered');
     }
 
     /**
      * Gets the hydrator for a model or the default is the model doesn't have one.
      *
-     * @param AbstractModel $model
+     * @param Model\ModelInterface $model
      * @return HydratorInterface
      */
-    public function getHydratorFromModel(AbstractModel $model)
+    public function getHydratorFromModel(Model\ModelInterface $model)
     {
         if ($model->getHydrator()) {
             return $model->getHydrator();
@@ -361,13 +274,13 @@ class CrudManager implements ServiceLocatorAwareInterface
      * Gets a form for a model. Will pull from form manager, instantiate a class, or use the
      * default form builder in order.
      *
-     * @param AbstractModel $model
+     * @param Model\ModelInterface $model
      * @param null|object $entity
      * @throws \RuntimeException if no form can be created or found from form manager
      * @throws \InvalidArgumentException when entity supplied does not match model entity class
      * @return \Zend\Form\Form
      */
-    public function getFormFromModel(AbstractModel $model, $entity = null)
+    public function getFormFromModel(Model\ModelInterface $model, $entity = null)
     {
         if (is_object($entity)) {
             if (get_class($entity) != $model->getEntityClass()) {
@@ -408,5 +321,29 @@ class CrudManager implements ServiceLocatorAwareInterface
         $form->bind($entity);
 
         return $form;
+    }
+
+    /**
+     * @param mixed $model
+     * @throws Exception\InvalidModelException
+     * @return void
+     */
+    public function validateModel($model)
+    {
+        if (!$model instanceof Model\ModelInterface) {
+            throw new Exception\InvalidModelException(sprintf(
+                'Model of type %s is invalid; must implement %s\Model\ModelInterface',
+                (is_object($model) ? get_class($model) : gettype($model)),
+                __NAMESPACE__
+            ));
+        }
+
+        if (!$model->getName()) {
+            throw new Exception\InvalidModelException(sprintf(
+                'Model "%s" is missing a name.',
+                (is_object($model) ? get_class($model) : gettype($model)),
+                __NAMESPACE__
+            ));
+        }
     }
 }

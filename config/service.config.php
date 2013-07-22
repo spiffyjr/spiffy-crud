@@ -2,9 +2,8 @@
 
 return array(
     'factories' => array(
-        'SpiffyCrudManager' => 'SpiffyCrud\Service\ManagerCrudFactory',
-
-        'SpiffyCrudBuilderDoctrineOrm'     => 'SpiffyCrud\Service\BuilderDoctrineOrmFactory',
-        'SpiffyCrudMapperDoctrineObject'   => 'SpiffyCrud\Service\MapperDoctrineObjectFactory',
+        'DoctrineORMModule\Form\Annotation\AnnotationBuilder' => 'SpiffyCrud\Form\Annotation\AnnotationBuilderFactory',
+        'SpiffyCrud\Adapter\DoctrineObject'                   => 'SpiffyCrud\Adapter\DoctrineObjectFactory',
+        'SpiffyCrud\CrudManager'                              => 'SpiffyCrud\CrudManagerFactory',
     )
 );

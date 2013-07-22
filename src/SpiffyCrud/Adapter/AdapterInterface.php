@@ -1,10 +1,10 @@
 <?php
 
-namespace SpiffyCrud\Mapper;
+namespace SpiffyCrud\Adapter;
 
 use Zend\Stdlib\Hydrator\HydratorInterface;
 
-interface MapperInterface
+interface AdapterInterface
 {
     /**
      * @param string $entityPrototype
@@ -12,7 +12,7 @@ interface MapperInterface
      * @param array $options
      * @return object
      */
-    public function readAll($entityPrototype, HydratorInterface $hydrator, array $options = array());
+    public function findAll($entityPrototype, HydratorInterface $hydrator, array $options = array());
 
     /**
      * @param string $entityPrototype
@@ -21,22 +21,21 @@ interface MapperInterface
      * @param array $options
      * @return object
      */
-    public function read($entityPrototype, $id, HydratorInterface $hydrator, array $options = array());
+    public function find($entityPrototype, $id, HydratorInterface $hydrator, array $options = array());
 
     /**
      * @param object $entity
-     * @param HydratorInterface $hydrator
      * @param array $options
      * @return object
      */
-    public function create($entity, HydratorInterface $hydrator, array $options = array());
+    public function create($entity, array $options = array());
 
     /**
      * @param object $entity
      * @param array $options
      * @return mixed
      */
-    public function delete($entity, array $options = array());
+    public function remove($entity, array $options = array());
 
     /**
      * @param object $entity

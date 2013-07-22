@@ -2,12 +2,11 @@
 
 namespace SpiffyCrud\Controller;
 
-use DoctrineModule\Stdlib\Hydrator\DoctrineObject;
 use SpiffyCrud\CrudManager;
 use Zend\Http\Response;
 use Zend\Mvc\Controller\AbstractActionController;
 
-class CrudController extends AbstractActionController
+class Crud extends AbstractActionController
 {
     /**
      * @var CrudManager
@@ -16,7 +15,7 @@ class CrudController extends AbstractActionController
 
     /**
      * @param \SpiffyCrud\CrudManager $crudManager
-     * @return CrudController
+     * @return $this
      */
     public function setCrudManager($crudManager)
     {
@@ -30,7 +29,7 @@ class CrudController extends AbstractActionController
     public function getCrudManager()
     {
         if (!$this->crudManager instanceof CrudManager) {
-            $this->crudManager = $this->getServiceLocator()->get('SpiffyCrudManager');
+            $this->crudManager = $this->getServiceLocator()->get('SpiffyCrud\CrudManager');
         }
         return $this->crudManager;
     }
@@ -52,13 +51,11 @@ class CrudController extends AbstractActionController
     public function detailsAction()
     {
         $manager = $this->getCrudManager();
-        $model   = $manager->getModel($this->params('name'));
+        $model   = $manager->get($this->params('name'));
 
         return array(
-            'model'         => $model,
-            'canonicalName' => $manager->canonicalize(get_class($model)),
-            'name'          => $model->getName(),
-            'data'          => $manager->readAll($model)
+            'model' => $model,
+            'data'  => $manager->findAllEntities($model)
         );
     }
 
@@ -68,9 +65,15 @@ class CrudController extends AbstractActionController
     public function createAction()
     {
         $manager = $this->getCrudManager();
-        $model   = $manager->getModel($this->params('name'));
+        $model   = $manager->get($this->params('name'));
         $form    = $manager->getFormFromModel($model);
         $prg     = $this->prg();
+
+        if (isset($_POST)) {
+            echo '<pre>';
+            print_r($_POST);
+            exit;
+        }
 
         if ($prg instanceof Response) {
             return $prg;
@@ -100,11 +103,11 @@ class CrudController extends AbstractActionController
     public function deleteAction()
     {
         $manager = $this->getCrudManager();
-        $model   = $manager->getModel($this->params('name'));
-        $entity  = $manager->read($model, $this->params('id'));
+        $model   = $manager->get($this->params('name'));
+        $entity  = $manager->findEntity($model, $this->params('id'));
 
         $model->setEntity($entity);
-        $manager->delete($model);
+        $manager->removeEntity($model);
 
         return $this->redirect()->toRoute(
             'spiffy_crud/details',
@@ -118,8 +121,8 @@ class CrudController extends AbstractActionController
     public function updateAction()
     {
         $manager = $this->getCrudManager();
-        $model   = $manager->getModel($this->params('name'));
-        $entity  = $manager->read($model, $this->params('id'));
+        $model   = $manager->get($this->params('name'));
+        $entity  = $manager->findEntity($model, $this->params('id'));
         $form    = $manager->getFormFromModel($model, $entity);
         $prg     = $this->prg();
 
@@ -130,7 +133,7 @@ class CrudController extends AbstractActionController
 
             if ($form->isValid()) {
                 $model->setEntity($entity);
-                $this->getCrudManager()->update($model);
+                $this->getCrudManager()->updateEntity($model);
 
                 return $this->redirect()->toRoute(
                     'spiffy_crud/details',

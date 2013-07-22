@@ -2,9 +2,9 @@
     <?php if ($groupName === \SpiffyCrud\CrudManager::UNGROUPED_NAME) continue; ?>
     <h2><?php echo $groupName;?></h2>
     <ul>
-    <?php foreach ($models as $canonicalName => $model) : ?>
+    <?php foreach ($models as $model) : ?>
         <li>
-            <a href="<?php echo $this->url('spiffy_crud/details', array('name' => $canonicalName));?>">
+            <a href="<?php echo $this->url('spiffy_crud/details', array('name' => $model->getName()));?>">
                 <?php echo $model->getName(); ?>
             </a>
         </li>
@@ -15,9 +15,9 @@
 <?php if (!empty($this->models[\SpiffyCrud\CrudManager::UNGROUPED_NAME])) : ?>
 <h3>Remaining models</h3>
 <ul>
-<?php foreach($this->models[\SpiffyCrud\CrudManager::UNGROUPED_NAME] as $canonicalName => $model) : ?>
+<?php foreach($this->models[\SpiffyCrud\CrudManager::UNGROUPED_NAME] as $model) : ?>
     <li>
-        <a href="<?php echo $this->url('spiffy_crud/details', array('name' => $canonicalName));?>">
+        <a href="<?php echo $this->url('spiffy_crud/details', array('name' => $model->getName()));?>">
             <?php echo $model->getName(); ?>
         </a>
     </li>

@@ -1,13 +1,12 @@
 <?php
 
-namespace SpiffyCrud\Service;
+namespace SpiffyCrud;
 
-use SpiffyCrud\CrudManager;
-use SpiffyCrud\Options\CrudManagerFactory as CrudManagerFactoryOptions;
+use Zend\ServiceManager\Config;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-class ManagerCrudFactory implements FactoryInterface
+class CrudManagerFactory implements FactoryInterface
 {
     /**
      * Create service
@@ -20,28 +19,23 @@ class ManagerCrudFactory implements FactoryInterface
         $config = $serviceLocator->get('Configuration');
         $config = isset($config['spiffy_crud']) ? $config['spiffy_crud'] : array();
 
-        $options     = new CrudManagerFactoryOptions($config);
+        $options     = new ModuleOptions($config);
         $crudManager = new CrudManager();
-        $crudManager->setServiceLocator($serviceLocator);
 
         if ($options->getDefaultHydrator()) {
             $crudManager->setDefaultHydrator($this->get($options->getDefaultHydrator(), $serviceLocator));
         }
 
-        if ($options->getDefaultMapper()) {
-            $crudManager->setDefaultMapper($this->get($options->getDefaultMapper(), $serviceLocator));
+        if ($options->getDefaultAdapter()) {
+            $crudManager->setDefaultAdapter($this->get($options->getDefaultAdapter(), $serviceLocator));
         }
 
         if ($options->getFormBuilder()) {
             $crudManager->setFormBuilder($this->get($options->getFormBuilder(), $serviceLocator));
         }
 
-        foreach($options->getModels() as $model) {
-            if (null === $model) {
-                continue;
-            }
-            $crudManager->addModel($this->get($model, $serviceLocator));
-        }
+        $config = new Config($options->getModels());
+        $config->configureServiceManager($crudManager);
 
         return $crudManager;
     }
@@ -62,6 +56,9 @@ class ManagerCrudFactory implements FactoryInterface
             return new $input;
         }
 
-        throw new \RuntimeException('Builder could not be found');
+        throw new \RuntimeException(sprintf(
+            'Service "%s" could not be found',
+            $input
+        ));
     }
 }

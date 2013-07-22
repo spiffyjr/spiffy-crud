@@ -2,10 +2,11 @@
 
 namespace SpiffyCrud\Model;
 
+use SpiffyCrud\Adapter\AdapterInterface;
 use Zend\Stdlib\AbstractOptions;
 use Zend\Stdlib\Hydrator\HydratorInterface;
 
-abstract class AbstractModel extends AbstractOptions
+abstract class AbstractModel extends AbstractOptions implements ModelInterface
 {
     /**
      * Name to distinguish this model.
@@ -43,11 +44,11 @@ abstract class AbstractModel extends AbstractOptions
     protected $entity;
 
     /**
-     * The mapper used to persist data to storage.
+     * The adapter used to persist data to storage.
      *
-     * @var \SpiffyCrud\Mapper\MapperInterface
+     * @var \SpiffyCrud\Adapter\AdapterInterface
      */
-    protected $mapper;
+    protected $adapter;
 
     /**
      * Additional options for the view such as column setup, etc.
@@ -57,11 +58,11 @@ abstract class AbstractModel extends AbstractOptions
     protected $viewOptions = array();
 
     /**
-     * Additional options for the mapper such as table_name.
+     * Additional options for the adapter such as table_name.
      *
      * @var array
      */
-    protected $mapperOptions = array();
+    protected $adapterOptions = array();
 
     /**
      * The form used to take user input for hydrating the entity.
@@ -113,21 +114,21 @@ abstract class AbstractModel extends AbstractOptions
     }
 
     /**
-     * @param \SpiffyCrud\Mapper\MapperInterface $mapper
+     * @param AdapterInterface $adapter
      * @return AbstractModel
      */
-    public function setMapper($mapper)
+    public function setAdapter(AdapterInterface $adapter)
     {
-        $this->mapper = $mapper;
+        $this->adapter = $adapter;
         return $this;
     }
 
     /**
-     * @return \SpiffyCrud\Mapper\MapperInterface
+     * @return \SpiffyCrud\Adapter\AdapterInterface
      */
-    public function getMapper()
+    public function getAdapter()
     {
-        return $this->mapper;
+        return $this->adapter;
     }
 
     /**
@@ -167,21 +168,21 @@ abstract class AbstractModel extends AbstractOptions
     }
 
     /**
-     * @param array $mapperOptions
+     * @param array $adapterOptions
      * @return AbstractModel
      */
-    public function setMapperOptions(array $mapperOptions)
+    public function setAdapterOptions(array $adapterOptions)
     {
-        $this->mapperOptions = $mapperOptions;
+        $this->adapterOptions = $adapterOptions;
         return $this;
     }
 
     /**
      * @return array
      */
-    public function getMapperOptions()
+    public function getAdapterOptions()
     {
-        return $this->mapperOptions;
+        return $this->adapterOptions;
     }
 
     /**

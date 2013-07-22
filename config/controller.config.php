@@ -2,6 +2,6 @@
 
 return array(
     'invokables' => array(
-        'SpiffyCrud\Controller\CrudController' => 'SpiffyCrud\Controller\CrudController'
+        'SpiffyCrud\Controller\Crud' => 'SpiffyCrud\Controller\Crud'
     )
 );

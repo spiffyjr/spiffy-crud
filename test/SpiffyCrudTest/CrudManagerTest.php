@@ -4,7 +4,7 @@ namespace SpiffyCrudTest\Model;
 
 use ArrayObject;
 use SpiffyCrud\CrudManager;
-use SpiffyCrud\Mapper\SimpleArray;
+use SpiffyCrud\Adapter\SimpleArray;
 use SpiffyCrudTest\Asset\AdvancedEntity;
 use SpiffyCrudTest\Asset\SimpleEntity;
 use SpiffyCrudTest\Asset\SimpleForm;

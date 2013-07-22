@@ -1,12 +1,12 @@
 <?php
 
-namespace SpiffyCrud\Options;
+namespace SpiffyCrud;
 
-use SpiffyCrud\Mapper\MapperInterface;
+use SpiffyCrud\Adapter\AdapterInterface;
 use Zend\Stdlib\AbstractOptions;
 use Zend\Stdlib\Hydrator\HydratorInterface;
 
-class CrudManagerFactory extends AbstractOptions
+class ModuleOptions extends AbstractOptions
 {
     /**
      * A string with a service locator resource or a HydratorInterface to
@@ -17,12 +17,12 @@ class CrudManagerFactory extends AbstractOptions
     protected $defaultHydrator = 'Zend\Stdlib\Hydrator\ClassMethods';
 
     /**
-     * A string with a service locator resource or a MapperInterface to
-     * use as the default mapper.
+     * A string with a service locator resource or a AdapterInterface to
+     * use as the default adapter.
      *
-     * @var string|MapperInterface
+     * @var string|AdapterInterface
      */
-    protected $defaultMapper = 'SpiffyCrudMapperDoctrineObject';
+    protected $defaultAdapter = 'SpiffyCrud\Adapter\DoctrineObject';
 
     /**
      * A string with a service locator resource or a \Zend\Form\Builder\AnnotationBuilder to
@@ -30,7 +30,7 @@ class CrudManagerFactory extends AbstractOptions
      *
      * @var string
      */
-    protected $formBuilder = 'SpiffyCrudBuilderDoctrineOrm';
+    protected $formBuilder = 'DoctrineORMModule\Form\Annotation\AnnotationBuilder';
 
     /**
      * An array of models to register..
@@ -76,21 +76,21 @@ class CrudManagerFactory extends AbstractOptions
     }
 
     /**
-     * @param \SpiffyCrud\Mapper\MapperInterface|string $defaultMapper
+     * @param \SpiffyCrud\Adapter\AdapterInterface|string $defaultAdapter
      * @return CrudManagerFactory
      */
-    public function setDefaultMapper($defaultMapper)
+    public function setDefaultAdapter($defaultAdapter)
     {
-        $this->defaultMapper = $defaultMapper;
+        $this->defaultAdapter = $defaultAdapter;
         return $this;
     }
 
     /**
-     * @return \SpiffyCrud\Mapper\MapperInterface|string
+     * @return \SpiffyCrud\Adapter\AdapterInterface|string
      */
-    public function getDefaultMapper()
+    public function getDefaultAdapter()
     {
-        return $this->defaultMapper;
+        return $this->defaultAdapter;
     }
 
     /**

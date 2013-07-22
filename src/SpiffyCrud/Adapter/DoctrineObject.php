@@ -1,11 +1,11 @@
 <?php
 
-namespace SpiffyCrud\Mapper;
+namespace SpiffyCrud\Adapter;
 
 use Doctrine\Common\Persistence\ObjectManager;
 use Zend\Stdlib\Hydrator\HydratorInterface;
 
-class DoctrineObject implements MapperInterface
+class DoctrineObject implements AdapterInterface
 {
     /**
      * @var ObjectManager
@@ -21,60 +21,45 @@ class DoctrineObject implements MapperInterface
     }
 
     /**
-     * @param string $entityPrototype
-     * @param null|HydratorInterface $hydrator
-     * @param array $options
-     * @return object
+     * {@inheritDoc}
      */
-    public function readAll($entityPrototype, HydratorInterface $hydrator = null, array $options = array())
+    public function findAll($entityPrototype, HydratorInterface $hydrator = null, array $options = array())
     {
         return $this->objectManager->getRepository($entityPrototype)->findAll();
     }
 
     /**
-     * @param string $entityPrototype
-     * @param string|integer $id
-     * @param HydratorInterface $hydrator
-     * @param array $options
-     * @return object
+     * {@inheritDoc}
      */
-    public function read($entityPrototype, $id, HydratorInterface $hydrator, array $options = array())
+    public function find($entityPrototype, $id, HydratorInterface $hydrator, array $options = array())
     {
         return $this->objectManager->getRepository($entityPrototype)->find($id);
     }
 
     /**
-     * @param object $entity
-     * @param null|HydratorInterface $hydrator
-     * @param array $options
-     * @return object
+     * {@inheritDoc}
      */
-    public function create($entity, HydratorInterface $hydrator = null, array $options = array())
+    public function create($entity, array $options = array())
     {
         return $this->persist($entity);
     }
 
     /**
-     * @param object $entity
-     * @param array $options
-     * @return mixed
+     * {@inheritDoc}
      */
-    public function delete($entity, array $options = array())
+    public function remove($entity, array $options = array())
     {
         $this->objectManager->remove($entity);
         $this->objectManager->flush();
     }
 
     /**
-     * @param object $entity
-     * @param array $options
-     * @return mixed
+     * {@inheritDoc}
      */
     public function update($entity, array $options = array())
     {
         return $this->persist($entity);
     }
-
 
     /**
      * @param object $entity

@@ -16,12 +16,20 @@ class Datatable extends AbstractHelper implements HelperInterface
      */
     protected $datatable;
 
+    /**
+     * Constructor.
+     */
     public function __construct()
     {
         $this->datatable = new SpiffyDatatable();
     }
 
-    public function __invoke(AbstractModel $model, $name, array $data)
+    /**
+     * @param AbstractModel $model
+     * @param array $data
+     * @return mixed
+     */
+    public function __invoke(AbstractModel $model, array $data)
     {
         $options = $model->getViewOptions();
 
@@ -33,8 +41,8 @@ class Datatable extends AbstractHelper implements HelperInterface
         $columns[] = array(
             'sTitle'  => 'Admin',
             'mRender' => 'function(i, j, row) {
-                return "<a href=\"/crud/'. $name . '/" + row.id + "/update\">edit</a> " +
-                       "<a href=\"/crud/'. $name . '/" + row.id + "/delete\">delete</a>";
+                return "<a href=\"/crud/'. $model->getName() . '/" + row.id + "/update\">edit</a> " +
+                       "<a href=\"/crud/'. $model->getName() . '/" + row.id + "/delete\">delete</a>";
             }'
         );
 
@@ -44,6 +52,11 @@ class Datatable extends AbstractHelper implements HelperInterface
         return $this->getView()->datatable('crudlist', $this->datatable);
     }
 
+    /**
+     * @param AbstractModel $model
+     * @param array $data
+     * @return array
+     */
     protected function detectColumns(AbstractModel $model, array $data)
     {
         $rendererOptions = $model->getViewOptions();
@@ -51,15 +64,11 @@ class Datatable extends AbstractHelper implements HelperInterface
             return $rendererOptions['columns'];
         }
 
-        $columns = array();
-        if (empty($data)) {
-            $entity = $data[0];
-        } else {
-            $entity = $model->getEntity() ? $model->getEntity() : $model->getEntityClass();
-        }
-
+        $columns    = array();
+        $entity     = $model->getEntity() ? $model->getEntity() : $model->getEntityClass();
         $reflection = new \ReflectionClass($entity);
         $properties = $reflection->getProperties();
+
         foreach($properties as $property) {
             $columns[] = array(
                 'sName'  => $property->getName(),
