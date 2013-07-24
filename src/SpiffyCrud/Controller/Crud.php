@@ -55,6 +55,7 @@ class Crud extends AbstractActionController
 
         return array(
             'model' => $model,
+            'name'  => $this->params('name'),
             'data'  => $manager->findAllEntities($model)
         );
     }
@@ -69,19 +70,13 @@ class Crud extends AbstractActionController
         $form    = $manager->getFormFromModel($model);
         $prg     = $this->prg();
 
-        if (isset($_POST)) {
-            echo '<pre>';
-            print_r($_POST);
-            exit;
-        }
-
         if ($prg instanceof Response) {
             return $prg;
         } elseif (false !== $prg) {
             $form->setData($prg);
 
             if ($form->isValid()) {
-                $this->getCrudManager()->create($model);
+                $this->getCrudManager()->createEntity($model);
 
                 return $this->redirect()->toRoute(
                     'spiffy_crud/details',

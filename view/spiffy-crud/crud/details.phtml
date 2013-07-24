@@ -1,7 +1,7 @@
 <h1>Details for <?php echo $model->getName(); ?></h1>
 
 <p>
-    <a href="<?php echo $this->url('spiffy_crud/details/create', array('name' => $model->getName())); ?>">Create</a>
+    <a href="<?php echo $this->url('spiffy_crud/details/create', array('name' => $name)); ?>">Create</a>
 </p>
 
 <?php echo $this->crudlist($model, $data); ?>
@@ -11,5 +11,5 @@
 </p>
 
 <p>
-    <a href="<?php echo $this->url('spiffy_crud/details/create', array('name' => $model->getName())); ?>">Create</a>
+    <a href="<?php echo $this->url('spiffy_crud/details/create', array('name' => $name)); ?>">Create</a>
 </p>

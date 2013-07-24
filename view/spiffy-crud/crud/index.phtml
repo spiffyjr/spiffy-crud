@@ -2,9 +2,9 @@
     <?php if ($groupName === \SpiffyCrud\CrudManager::UNGROUPED_NAME) continue; ?>
     <h2><?php echo $groupName;?></h2>
     <ul>
-    <?php foreach ($models as $model) : ?>
+    <?php foreach ($models as $name => $model) : ?>
         <li>
-            <a href="<?php echo $this->url('spiffy_crud/details', array('name' => $model->getName()));?>">
+            <a href="<?php echo $this->url('spiffy_crud/details', array('name' => $name));?>">
                 <?php echo $model->getName(); ?>
             </a>
         </li>
@@ -17,7 +17,7 @@
 <ul>
 <?php foreach($this->models[\SpiffyCrud\CrudManager::UNGROUPED_NAME] as $model) : ?>
     <li>
-        <a href="<?php echo $this->url('spiffy_crud/details', array('name' => $model->getName()));?>">
+        <a href="<?php echo $this->url('spiffy_crud/details', array('name' => $name));?>">
             <?php echo $model->getName(); ?>
         </a>
     </li>

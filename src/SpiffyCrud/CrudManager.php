@@ -63,9 +63,9 @@ class CrudManager extends ServiceManager
                 $model = $this->get($service);
 
                 if ($model->getGroupName()) {
-                    $result[$model->getGroupName()][] = $model;
+                    $result[$model->getGroupName()][$service] = $model;
                 } else {
-                    $result[self::UNGROUPED_NAME][] = $model;
+                    $result[self::UNGROUPED_NAME][$service] = $model;
                 }
             }
         }

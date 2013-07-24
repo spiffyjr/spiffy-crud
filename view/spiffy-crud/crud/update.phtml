@@ -3,7 +3,7 @@
 <?php
 /** @var \Zend\Form\Form $form */
 $form->prepare();
-$form->setAttribute('action', $this->url('spiffy_crud/update', array('name' => $name, 'id' => $entity->getId())));
+$form->setAttribute('action', $this->url('spiffy_crud/details/update', array('name' => $name, 'id' => $entity->getId())));
 $form->setAttribute('method', 'post');
 ?>
 
