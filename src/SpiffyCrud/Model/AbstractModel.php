@@ -2,32 +2,23 @@
 
 namespace SpiffyCrud\Model;
 
-use SpiffyCrud\Adapter\AdapterInterface;
 use Zend\Stdlib\AbstractOptions;
-use Zend\Stdlib\Hydrator\HydratorInterface;
 
 abstract class AbstractModel extends AbstractOptions implements ModelInterface
 {
     /**
-     * Name to distinguish this model.
+     * Custom name to use for display purposes.
      *
      * @var string
      */
-    protected $name;
+    protected $displayName;
 
     /**
-     * The group name, if any, that this model belongs to.
+     * String for the hydrator to pull from the hydrator manager.
      *
      * @var string
      */
-    protected $groupName;
-
-    /**
-     * The hydrator used to hydrate/extract data from the entity.
-     *
-     * @var \Zend\Stdlib\Hydrator\HydratorInterface|null
-     */
-    protected $hydrator;
+    protected $hydratorName;
 
     /**
      * The class for the entity.
@@ -37,18 +28,15 @@ abstract class AbstractModel extends AbstractOptions implements ModelInterface
     protected $entityClass;
 
     /**
-     * The entity which is set from $entityClass if avialable.
+     * The spec to use for creating the custom form for this entity. If no form
+     * is present then forms will be built using an annotation builder from the model
+     * prototype. Arrays are passed to the form factory and strings are retrieved
+     * from the form manager, 'forms' abstract service factory (if registered), and
+     * finaly instantiated directly if the class exists.
      *
-     * @var null|object
+     * @var array|string
      */
-    protected $entity;
-
-    /**
-     * The adapter used to persist data to storage.
-     *
-     * @var \SpiffyCrud\Adapter\AdapterInterface
-     */
-    protected $adapter;
+    protected $formSpec;
 
     /**
      * Additional options for the view such as column setup, etc.
@@ -65,34 +53,21 @@ abstract class AbstractModel extends AbstractOptions implements ModelInterface
     protected $adapterOptions = array();
 
     /**
-     * The form used to take user input for hydrating the entity.
-     *
-     * @var string|\Zend\Form\Form
+     * @param string $displayName
+     * @return $this
      */
-    protected $form;
-
-    /**
-     * Post-construction initialization.
-     */
-    public function init()
-    {}
-
-    /**
-     * @param string $name
-     * @return AbstractModel
-     */
-    public function setName($name)
+    public function setDisplayName($displayName)
     {
-        $this->name = $name;
+        $this->displayName = $displayName;
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getName()
+    public function getDisplayName()
     {
-        return $this->name;
+        return $this->displayName;
     }
 
     /**
@@ -111,60 +86,6 @@ abstract class AbstractModel extends AbstractOptions implements ModelInterface
     public function getEntityClass()
     {
         return $this->entityClass;
-    }
-
-    /**
-     * @param AdapterInterface $adapter
-     * @return AbstractModel
-     */
-    public function setAdapter(AdapterInterface $adapter)
-    {
-        $this->adapter = $adapter;
-        return $this;
-    }
-
-    /**
-     * @return \SpiffyCrud\Adapter\AdapterInterface
-     */
-    public function getAdapter()
-    {
-        return $this->adapter;
-    }
-
-    /**
-     * @param string|\Zend\Form\Form $form
-     * @return AbstractModel
-     */
-    public function setForm($form)
-    {
-        $this->form = $form;
-        return $this;
-    }
-
-    /**
-     * @return \Zend\Form\Form
-     */
-    public function getForm()
-    {
-        return $this->form;
-    }
-
-    /**
-     * @param null|\Zend\Stdlib\Hydrator\HydratorInterface $hydrator
-     * @return AbstractModel
-     */
-    public function setHydrator(HydratorInterface $hydrator)
-    {
-        $this->hydrator = $hydrator;
-        return $this;
-    }
-
-    /**
-     * @return null|\Zend\Stdlib\Hydrator\HydratorInterface
-     */
-    public function getHydrator()
-    {
-        return $this->hydrator;
     }
 
     /**
@@ -204,38 +125,38 @@ abstract class AbstractModel extends AbstractOptions implements ModelInterface
     }
 
     /**
-     * @param null|object $entity
-     * @return AbstractModel
+     * @param string $hydratorName
+     * @return $this
      */
-    public function setEntity($entity)
+    public function setHydratorName($hydratorName)
     {
-        $this->entity = $entity;
-        return $this;
-    }
-
-    /**
-     * @return null|object
-     */
-    public function getEntity()
-    {
-        return $this->entity;
-    }
-
-    /**
-     * @param string $groupName
-     * @return AbstractModel
-     */
-    public function setGroupName($groupName)
-    {
-        $this->groupName = $groupName;
+        $this->hydratorName = $hydratorName;
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getGroupName()
+    public function getHydratorName()
     {
-        return $this->groupName;
+        return $this->hydratorName;
+    }
+
+    /**
+     * @param array|string $formSpec
+     * @return $this
+     */
+    public function setFormSpec($formSpec)
+    {
+        $this->formSpec = $formSpec;
+        return $this;
+    }
+
+    /**
+     * @return array|string
+     */
+    public function getFormSpec()
+    {
+        return $this->formSpec;
     }
 }

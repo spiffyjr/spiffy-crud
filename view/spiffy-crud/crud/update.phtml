@@ -1,24 +1,10 @@
 <h1>Update</h1>
 
-<?php
-/** @var \Zend\Form\Form $form */
-$form->prepare();
-$form->setAttribute('action', $this->url('spiffy_crud/details/update', array('name' => $name, 'id' => $entity->getId())));
-$form->setAttribute('method', 'post');
-?>
-
-<?php echo $this->form()->openTag($form) ?>
-<dl class="zend_form">
-    <?php foreach ($form as $element): ?>
-        <?php if (!$element instanceof \Zend\Form\Element\Submit): ?>
-            <dt>
-            <?php echo $this->formLabel($element, $element->getAttribute('label') ? $element->getAttribute('label') : $element->getName()) ?>
-            </dt>
-        <?php endif ?>
-        <dd><?php echo $this->formElement($element) . $this->formElementErrors($element) ?></dd>
-    <?php endforeach ?>
-</dl>
-<?php echo $this->form()->closeTag() ?>
-
-
+<?php echo $this->partial(
+    'spiffy-crud/crud/form',
+    array(
+        'form' => $form,
+        'url' => $this->url('spiffy_crud/details/update', array('name' => $name, 'id' => $entity->getId()))
+    )
+);?>
 <a href="<?php echo $this->url('spiffy_crud/details', array('name' => $name)); ?>">Back to List</a>

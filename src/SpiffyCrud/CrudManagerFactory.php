@@ -12,32 +12,20 @@ class CrudManagerFactory implements FactoryInterface
      * Create service
      *
      * @param ServiceLocatorInterface $serviceLocator
-     * @return mixed
+     * @return CrudManager
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $config = $serviceLocator->get('Configuration');
-        $config = isset($config['spiffy_crud']) ? $config['spiffy_crud'] : array();
+        /** @var \SpiffyCrud\ModuleOptions $options */
+        $options = $serviceLocator->get('SpiffyCrud\ModuleOptions');
+        $adapter = $this->get($options->getAdapter(), $serviceLocator);
+        $manager = new CrudManager($adapter, new Config($options->getModels()));
+        $manager->setDefaultHydrator($options->getDefaultHydrator());
+        $manager->setHydratorManager($serviceLocator->get('HydratorManager'));
+        $manager->setFormBuilder($this->get($options->getFormBuilder(), $serviceLocator));
+        $manager->setFormElementManager($serviceLocator->get('FormElementManager'));
 
-        $options     = new ModuleOptions($config);
-        $crudManager = new CrudManager();
-
-        if ($options->getDefaultHydrator()) {
-            $crudManager->setDefaultHydrator($this->get($options->getDefaultHydrator(), $serviceLocator));
-        }
-
-        if ($options->getDefaultAdapter()) {
-            $crudManager->setDefaultAdapter($this->get($options->getDefaultAdapter(), $serviceLocator));
-        }
-
-        if ($options->getFormBuilder()) {
-            $crudManager->setFormBuilder($this->get($options->getFormBuilder(), $serviceLocator));
-        }
-
-        $config = new Config($options->getModels());
-        $config->configureServiceManager($crudManager);
-
-        return $crudManager;
+        return $manager;
     }
 
     /**

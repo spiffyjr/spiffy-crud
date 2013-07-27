@@ -2,9 +2,7 @@
 
 namespace SpiffyCrud\View\Helper;
 
-use SpiffyCrud\Model\AbstractModel;
-
 interface HelperInterface
 {
-    public function __invoke(AbstractModel $model, array $data);
+    public function __invoke($name, array $data);
 }

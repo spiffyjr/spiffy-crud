@@ -17,12 +17,11 @@ class ModuleOptions extends AbstractOptions
     protected $defaultHydrator = 'Zend\Stdlib\Hydrator\ClassMethods';
 
     /**
-     * A string with a service locator resource or a AdapterInterface to
-     * use as the default adapter.
+     * A string with a service name for locating the adapter for persistence.
      *
      * @var string|AdapterInterface
      */
-    protected $defaultAdapter = 'SpiffyCrud\Adapter\DoctrineObject';
+    protected $adapter = 'SpiffyCrud\Adapter\DoctrineObject';
 
     /**
      * A string with a service locator resource or a \Zend\Form\Builder\AnnotationBuilder to
@@ -33,15 +32,22 @@ class ModuleOptions extends AbstractOptions
     protected $formBuilder = 'DoctrineORMModule\Form\Annotation\AnnotationBuilder';
 
     /**
-     * An array of models to register..
+     * An array of models to register with the crud manager.
      *
      * @var array
      */
-    protected $models = array() ;
+    protected $models = array();
+
+    /**
+     * An array of forms to register with the form manager for models to use.
+     *
+     * @var array
+     */
+    protected $forms = array() ;
 
     /**
      * @param string $formBuilder
-     * @return CrudManagerFactory
+     * @return $this
      */
     public function setFormBuilder($formBuilder)
     {
@@ -59,7 +65,7 @@ class ModuleOptions extends AbstractOptions
 
     /**
      * @param array $models
-     * @return CrudManagerFactory
+     * @return $this
      */
     public function setModels($models)
     {
@@ -76,26 +82,26 @@ class ModuleOptions extends AbstractOptions
     }
 
     /**
-     * @param \SpiffyCrud\Adapter\AdapterInterface|string $defaultAdapter
-     * @return CrudManagerFactory
+     * @param \SpiffyCrud\Adapter\AdapterInterface|string $adapter
+     * @return $this
      */
-    public function setDefaultAdapter($defaultAdapter)
+    public function setAdapter($adapter)
     {
-        $this->defaultAdapter = $defaultAdapter;
+        $this->adapter = $adapter;
         return $this;
     }
 
     /**
      * @return \SpiffyCrud\Adapter\AdapterInterface|string
      */
-    public function getDefaultAdapter()
+    public function getAdapter()
     {
-        return $this->defaultAdapter;
+        return $this->adapter;
     }
 
     /**
      * @param string|\Zend\Stdlib\Hydrator\HydratorInterface $defaultHydrator
-     * @return CrudManagerFactory
+     * @return $this
      */
     public function setDefaultHydrator($defaultHydrator)
     {
@@ -109,5 +115,23 @@ class ModuleOptions extends AbstractOptions
     public function getDefaultHydrator()
     {
         return $this->defaultHydrator;
+    }
+
+    /**
+     * @param array $forms
+     * @return $this
+     */
+    public function setForms($forms)
+    {
+        $this->forms = $forms;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getForms()
+    {
+        return $this->forms;
     }
 }

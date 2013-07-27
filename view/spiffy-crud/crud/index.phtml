@@ -1,26 +1,14 @@
-<?php foreach($this->models as $groupName => $models) : ?>
-    <?php if ($groupName === \SpiffyCrud\CrudManager::UNGROUPED_NAME) continue; ?>
-    <h2><?php echo $groupName;?></h2>
-    <ul>
-    <?php foreach ($models as $name => $model) : ?>
-        <li>
-            <a href="<?php echo $this->url('spiffy_crud/details', array('name' => $name));?>">
-                <?php echo $model->getName(); ?>
-            </a>
-        </li>
-    <?php endforeach; ?>
-    </ul>
-<?php endforeach; ?>
-
-<?php if (!empty($this->models[\SpiffyCrud\CrudManager::UNGROUPED_NAME])) : ?>
-<h3>Remaining models</h3>
-<ul>
-<?php foreach($this->models[\SpiffyCrud\CrudManager::UNGROUPED_NAME] as $model) : ?>
-    <li>
-        <a href="<?php echo $this->url('spiffy_crud/details', array('name' => $name));?>">
-            <?php echo $model->getName(); ?>
-        </a>
-    </li>
-<?php endforeach; ?>
-</ul>
-<?php endif; ?>
+<h1>Registered Models</h1>
+<?php
+/** @var \SpiffyCrud\CrudManager $manager */
+echo '<ul>';
+foreach ($manager->getCanonicalNames() as $realName => $canonicalName) {
+    /** @var \SpiffyCrud\Model\ModelInterface $model */
+    $model = $manager->get($canonicalName);
+    printf(
+        '<li><a href="%s">%s</a></li>',
+        $this->url('spiffy_crud/details', array('name' => $canonicalName)),
+        $realName
+    );
+}
+echo '</ul>';

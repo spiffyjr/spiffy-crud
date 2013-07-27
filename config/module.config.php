@@ -5,12 +5,13 @@ return array(
     ),
 
     'spiffy_crud' => array(
+        'forms'  => array(),
         'models' => array(),
     ),
 
     'view_helpers' => array(
-        'invokables' => array(
-            'crudlist' => 'SpiffyCrud\View\Helper\Datatable'
+        'factories' => array(
+            'spiffycrud' => 'SpiffyCrud\View\Helper\DatatableFactory'
         )
     ),
 
@@ -18,6 +19,7 @@ return array(
         'template_map' => array(
             'spiffy-crud/crud/create'  => __DIR__ . '/../view/spiffy-crud/crud/create.phtml',
             'spiffy-crud/crud/details' => __DIR__ . '/../view/spiffy-crud/crud/details.phtml',
+            'spiffy-crud/crud/form'    => __DIR__ . '/../view/spiffy-crud/crud/form.phtml',
             'spiffy-crud/crud/index'   => __DIR__ . '/../view/spiffy-crud/crud/index.phtml',
             'spiffy-crud/crud/update'  => __DIR__ . '/../view/spiffy-crud/crud/update.phtml',
         )

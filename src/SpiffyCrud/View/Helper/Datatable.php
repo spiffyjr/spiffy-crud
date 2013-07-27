@@ -2,7 +2,9 @@
 
 namespace SpiffyCrud\View\Helper;
 
-use SpiffyCrud\Model\AbstractModel;
+use ReflectionClass;
+use SpiffyCrud\CrudManager;
+use SpiffyCrud\Model;
 use SpiffyDatatables\Column\Collection;
 use SpiffyDatatables\DataResult;
 use SpiffyDatatables\Datatable as SpiffyDatatable;
@@ -17,32 +19,40 @@ class Datatable extends AbstractHelper implements HelperInterface
     protected $datatable;
 
     /**
-     * Constructor.
+     * @var \SpiffyCrud\CrudManager
      */
-    public function __construct()
+    protected $manager;
+
+    /**
+     * @param CrudManager $manager
+     */
+    public function __construct(CrudManager $manager)
     {
         $this->datatable = new SpiffyDatatable();
+        $this->manager   = $manager;
     }
 
     /**
-     * @param AbstractModel $model
+     * @param $name
      * @param array $data
      * @return mixed
      */
-    public function __invoke(AbstractModel $model, array $data)
+    public function __invoke($name, array $data)
     {
+        /** @var \SpiffyCrud\Model\ModelInterface $model */
+        $model   = $this->manager->get($name);
         $options = $model->getViewOptions();
 
         if (isset($options['options'])) {
             $this->datatable->setOptions(new DatatableOptions($options['options']));
         }
 
-        $columns = $this->detectColumns($model, $data);
+        $columns = $this->detectColumns($model, $name);
         $columns[] = array(
             'sTitle'  => 'Admin',
             'mRender' => 'function(i, j, row) {
-                return "<a href=\"/crud/'. $model->getName() . '/" + row.id + "/update\">edit</a> " +
-                       "<a href=\"/crud/'. $model->getName() . '/" + row.id + "/delete\">delete</a>";
+                return "<a href=\"/crud/'. $name . '/" + row.id + "/update\">edit</a> " +
+                       "<a href=\"/crud/'. $name . '/" + row.id + "/delete\">delete</a>";
             }'
         );
 
@@ -53,11 +63,11 @@ class Datatable extends AbstractHelper implements HelperInterface
     }
 
     /**
-     * @param AbstractModel $model
-     * @param array $data
+     * @param Model\ModelInterface $model
+     * @param string $name
      * @return array
      */
-    protected function detectColumns(AbstractModel $model, array $data)
+    protected function detectColumns(Model\ModelInterface $model, $name)
     {
         $rendererOptions = $model->getViewOptions();
         if (isset($rendererOptions['columns'])) {
@@ -65,8 +75,8 @@ class Datatable extends AbstractHelper implements HelperInterface
         }
 
         $columns    = array();
-        $entity     = $model->getEntity() ? $model->getEntity() : $model->getEntityClass();
-        $reflection = new \ReflectionClass($entity);
+        $entity     = $this->manager->getPrototype($name);
+        $reflection = new ReflectionClass($entity);
         $properties = $reflection->getProperties();
 
         foreach($properties as $property) {

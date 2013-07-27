@@ -1,10 +1,10 @@
-<h1>Details for <?php echo $model->getName(); ?></h1>
+<h1>Details for <?php echo $model->getDisplayName(); ?></h1>
 
 <p>
     <a href="<?php echo $this->url('spiffy_crud/details/create', array('name' => $name)); ?>">Create</a>
 </p>
 
-<?php echo $this->crudlist($model, $data); ?>
+<?php echo $this->spiffycrud($name, $data); ?>
 
 <p style="clear:left;">
     <a href="<?php echo $this->url('spiffy_crud'); ?>">Back to List</a>

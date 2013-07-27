@@ -10,7 +10,7 @@ interface AdapterInterface
      * @param string $entityPrototype
      * @param HydratorInterface $hydrator
      * @param array $options
-     * @return object
+     * @return array
      */
     public function findAll($entityPrototype, HydratorInterface $hydrator, array $options = array());
 
@@ -26,9 +26,9 @@ interface AdapterInterface
     /**
      * @param object $entity
      * @param array $options
-     * @return object
+     * @return mixed
      */
-    public function create($entity, array $options = array());
+    public function persist($entity, array $options = array());
 
     /**
      * @param object $entity
@@ -36,11 +36,4 @@ interface AdapterInterface
      * @return mixed
      */
     public function remove($entity, array $options = array());
-
-    /**
-     * @param object $entity
-     * @param array $options
-     * @return mixed
-     */
-    public function update($entity, array $options = array());
 }

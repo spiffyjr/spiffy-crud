@@ -41,7 +41,6 @@ class Crud extends AbstractActionController
     {
         return array(
             'manager' => $this->getCrudManager(),
-            'models'  => $this->getCrudManager()->getModelsAsGroup(),
         );
     }
 
@@ -51,12 +50,13 @@ class Crud extends AbstractActionController
     public function detailsAction()
     {
         $manager = $this->getCrudManager();
-        $model   = $manager->get($this->params('name'));
+        $name    = $this->params('name');
+        $model   = $manager->get($name);
 
         return array(
             'model' => $model,
-            'name'  => $this->params('name'),
-            'data'  => $manager->findAllEntities($model)
+            'name'  => $name,
+            'data'  => $manager->findAll($name)
         );
     }
 
@@ -65,9 +65,10 @@ class Crud extends AbstractActionController
      */
     public function createAction()
     {
+        $name    = $this->params('name');
         $manager = $this->getCrudManager();
-        $model   = $manager->get($this->params('name'));
-        $form    = $manager->getFormFromModel($model);
+        $model   = $manager->get($name);
+        $form    = $manager->getForm($name);
         $prg     = $this->prg();
 
         if ($prg instanceof Response) {
@@ -76,19 +77,19 @@ class Crud extends AbstractActionController
             $form->setData($prg);
 
             if ($form->isValid()) {
-                $this->getCrudManager()->createEntity($model);
+                $this->getCrudManager()->persist($name, $form->getData());
 
                 return $this->redirect()->toRoute(
                     'spiffy_crud/details',
-                    array('name' => $this->params('name'))
+                    array('name' => $name)
                 );
             }
         }
 
         return array(
-            'model'  => $model,
-            'form'   => $form,
-            'name'   => $this->params('name')
+            'model' => $model,
+            'form'  => $form,
+            'name'  => $name
         );
     }
 
@@ -97,16 +98,15 @@ class Crud extends AbstractActionController
      */
     public function deleteAction()
     {
+        $name    = $this->params('name');
         $manager = $this->getCrudManager();
-        $model   = $manager->get($this->params('name'));
-        $entity  = $manager->findEntity($model, $this->params('id'));
+        $entity  = $manager->find($name, $this->params('id'));
 
-        $model->setEntity($entity);
-        $manager->removeEntity($model);
+        $manager->remove($name, $entity);
 
         return $this->redirect()->toRoute(
             'spiffy_crud/details',
-            array('name' => $this->params('name'))
+            array('name' => $name)
         );
     }
 
@@ -115,10 +115,10 @@ class Crud extends AbstractActionController
      */
     public function updateAction()
     {
+        $name    = $this->params('name');
         $manager = $this->getCrudManager();
-        $model   = $manager->get($this->params('name'));
-        $entity  = $manager->findEntity($model, $this->params('id'));
-        $form    = $manager->getFormFromModel($model, $entity);
+        $entity  = $manager->find($name, $this->params('id'));
+        $form    = $manager->getForm($name, $entity);
         $prg     = $this->prg();
 
         if ($prg instanceof Response) {
@@ -127,21 +127,19 @@ class Crud extends AbstractActionController
             $form->setData($prg);
 
             if ($form->isValid()) {
-                $model->setEntity($entity);
-                $this->getCrudManager()->updateEntity($model);
+                $this->getCrudManager()->persist($name, $entity);
 
                 return $this->redirect()->toRoute(
                     'spiffy_crud/details',
-                    array('name' => $this->params('name'))
+                    array('name' => $name)
                 );
             }
         }
 
         return array(
-            'model'  => $model,
             'entity' => $entity,
             'form'   => $form,
-            'name'   => $this->params('name')
+            'name'   => $name
         );
     }
 }
