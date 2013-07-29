@@ -1,0 +1,9 @@
+<h1>Update</h1>
+
+<?php echo $this->partial(
+    'spiffy-crud/crud/form',
+    array(
+        'form' => $form,
+        'url'  => $this->url($updateRoute, array('id' => $id))
+    )
+);?>

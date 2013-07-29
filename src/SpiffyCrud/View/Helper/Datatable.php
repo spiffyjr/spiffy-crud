@@ -33,11 +33,9 @@ class Datatable extends AbstractHelper implements HelperInterface
     }
 
     /**
-     * @param $name
-     * @param array $data
-     * @return mixed
+     * {@inheritDoc}
      */
-    public function __invoke($name, array $data)
+    public function __invoke($name, array $data, array $options = array())
     {
         /** @var \SpiffyCrud\Model\ModelInterface $model */
         $model   = $this->manager->get($name);
@@ -47,28 +45,19 @@ class Datatable extends AbstractHelper implements HelperInterface
             $this->datatable->setOptions(new DatatableOptions($options['options']));
         }
 
-        $columns = $this->detectColumns($model, $name);
-        $columns[] = array(
-            'sTitle'  => 'Admin',
-            'mRender' => 'function(i, j, row) {
-                return "<a href=\"/crud/'. $name . '/" + row.id + "/update\">edit</a> " +
-                       "<a href=\"/crud/'. $name . '/" + row.id + "/delete\">delete</a>";
-            }'
-        );
-
-        $this->datatable->setColumns(Collection::factory($columns));
+        $this->datatable->setColumns(Collection::factory($this->detectColumns($name)));
         $this->datatable->setDataResult(new DataResult($data, count($data)));
 
         return $this->getView()->datatable('crudlist', $this->datatable);
     }
 
     /**
-     * @param Model\ModelInterface $model
      * @param string $name
      * @return array
      */
-    protected function detectColumns(Model\ModelInterface $model, $name)
+    protected function detectColumns($name)
     {
+        $model           = $this->manager->get($name);
         $rendererOptions = $model->getViewOptions();
         if (isset($rendererOptions['columns'])) {
             return $rendererOptions['columns'];

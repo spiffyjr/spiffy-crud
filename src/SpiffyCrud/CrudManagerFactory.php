@@ -19,7 +19,7 @@ class CrudManagerFactory implements FactoryInterface
         /** @var \SpiffyCrud\ModuleOptions $options */
         $options = $serviceLocator->get('SpiffyCrud\ModuleOptions');
         $adapter = $this->get($options->getAdapter(), $serviceLocator);
-        $manager = new CrudManager($adapter, new Config($options->getModels()));
+        $manager = new CrudManager($adapter, new Config($options->getManager()));
         $manager->setDefaultHydrator($options->getDefaultHydrator());
         $manager->setHydratorManager($serviceLocator->get('HydratorManager'));
         $manager->setFormBuilder($this->get($options->getFormBuilder(), $serviceLocator));

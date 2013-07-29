@@ -4,7 +4,7 @@
     'spiffy-crud/crud/form',
     array(
         'form' => $form,
-        'url' => $this->url('spiffy_crud/details/create', array('name' => $name))
+        'url' => $this->url($createRoute)
     )
 );?>
 <a href="<?php echo $this->url('spiffy_crud/details', array('name' => $name)); ?>">Back to List</a>

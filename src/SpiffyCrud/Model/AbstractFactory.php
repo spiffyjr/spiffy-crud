@@ -12,7 +12,7 @@ class AbstractFactory implements AbstractFactoryInterface
      */
     public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
-        // TODO: Implement canCreateServiceWithName() method.
+        return null !== $this->getConfig($serviceLocator, $requestedName);
     }
 
     /**
@@ -20,6 +20,23 @@ class AbstractFactory implements AbstractFactoryInterface
      */
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
-        // TODO: Implement createServiceWithName() method.
+        $config = $this->getConfig($serviceLocator, $requestedName);
+        $model  = new Model($config);
+
+        return $model;
+    }
+
+    /**
+     * @param ServiceLocatorInterface $serviceLocator
+     * @param string $name
+     * @return array|null
+     */
+    protected function getConfig(ServiceLocatorInterface $serviceLocator, $name)
+    {
+        /** @var \SpiffyCrud\CrudManager $serviceLocator */
+        $sl     = $serviceLocator->getServiceLocator();
+        $config = $sl->get('Configuration');
+
+        return isset($config['spiffy_crud']['models'][$name]) ? $config['spiffy_crud']['models'][$name] : null;
     }
 }

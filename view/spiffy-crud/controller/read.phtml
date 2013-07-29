@@ -1,0 +1,11 @@
+<h1>Details for <?php echo $model->getDisplayName(); ?></h1>
+
+<p>
+    <a href="<?php echo $this->url($createRoute); ?>">Create</a>
+</p>
+
+<?php echo $this->spiffycrud($name, $data); ?>
+
+<p style="clear:left;">
+    <a href="<?php echo $this->url($createRoute); ?>">Create</a>
+</p>

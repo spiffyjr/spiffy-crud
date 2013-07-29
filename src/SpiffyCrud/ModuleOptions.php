@@ -32,18 +32,19 @@ class ModuleOptions extends AbstractOptions
     protected $formBuilder = 'DoctrineORMModule\Form\Annotation\AnnotationBuilder';
 
     /**
-     * An array of models to register with the crud manager.
+     * Services to register with the manager.
+     *
+     * @var array
+     */
+    protected $manager = array();
+
+    /**
+     * An array of models to register with the crud manager. This is handled by the
+     * SpiffyCrud\Model\AbstractFactory.
      *
      * @var array
      */
     protected $models = array();
-
-    /**
-     * An array of forms to register with the form manager for models to use.
-     *
-     * @var array
-     */
-    protected $forms = array() ;
 
     /**
      * @param string $formBuilder
@@ -118,20 +119,20 @@ class ModuleOptions extends AbstractOptions
     }
 
     /**
-     * @param array $forms
+     * @param array $manager
      * @return $this
      */
-    public function setForms($forms)
+    public function setManager($manager)
     {
-        $this->forms = $forms;
+        $this->manager = $manager;
         return $this;
     }
 
     /**
      * @return array
      */
-    public function getForms()
+    public function getManager()
     {
-        return $this->forms;
+        return $this->manager;
     }
 }
