@@ -16,12 +16,15 @@ class DoctrineObjectFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        if (!$serviceLocator->has('Doctrine\ORM\EntityManager')) {
+        /** @var \SpiffyCrud\Adapter\AdapterManager $serviceLocator */
+        $sl = $serviceLocator->getServiceLocator();
+
+        if (!$sl->has('Doctrine\ORM\EntityManager')) {
             throw new \RuntimeException(
                 'The default configuration for DoctrineObject adapter requires a default setup of DoctrineORMModule.'
             );
         }
 
-        return new DoctrineObject($serviceLocator->get('Doctrine\ORM\EntityManager'));
+        return new DoctrineObject($sl->get('Doctrine\ORM\EntityManager'));
     }
 }

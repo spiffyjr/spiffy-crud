@@ -14,6 +14,13 @@ abstract class AbstractModel extends AbstractOptions implements ModelInterface
     protected $displayName;
 
     /**
+     * String for the adapter to pull from the adapter manager.
+     *
+     * @var string
+     */
+    protected $adapterName;
+
+    /**
      * String for the hydrator to pull from the hydrator manager.
      *
      * @var string
@@ -140,6 +147,24 @@ abstract class AbstractModel extends AbstractOptions implements ModelInterface
     public function getHydratorName()
     {
         return $this->hydratorName;
+    }
+
+    /**
+     * @param string $adapterName
+     * @return $this
+     */
+    public function setAdapterName($adapterName)
+    {
+        $this->adapterName = $adapterName;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAdapterName()
+    {
+        return $this->adapterName;
     }
 
     /**

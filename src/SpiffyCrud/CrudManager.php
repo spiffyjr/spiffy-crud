@@ -2,19 +2,18 @@
 
 namespace SpiffyCrud;
 
-use SpiffyCrud\Adapter\AdapterInterface;
+use SpiffyCrud\Adapter;
 use SpiffyCrud\Exception;
 use Zend\Form;
 use Zend\ServiceManager\AbstractPluginManager;
-use Zend\ServiceManager\Config;
 use Zend\Stdlib\Hydrator\HydratorPluginManager;
 
 class CrudManager extends AbstractPluginManager
 {
     /**
-     * @var AdapterInterface
+     * @var Adapter\AdapterInterface
      */
-    protected $adapter;
+    protected $defaultAdapter = 'DoctrineObject';
 
     /**
      * @var string
@@ -25,6 +24,11 @@ class CrudManager extends AbstractPluginManager
      * @var Form\Annotation\AnnotationBuilder
      */
     protected $formBuilder;
+
+    /**
+     * @var Adapter\AdapterManager
+     */
+    protected $adapterManager;
 
     /**
      * @var Form\FormElementManager
@@ -47,16 +51,6 @@ class CrudManager extends AbstractPluginManager
     protected $prototypes;
 
     /**
-     * @param AdapterInterface $adapter
-     * @param Config $configuration
-     */
-    public function __construct(AdapterInterface $adapter, Config $configuration = null)
-    {
-        parent::__construct($configuration);
-        $this->adapter = $adapter;
-    }
-
-    /**
      * @param string $name
      * @return array
      */
@@ -67,7 +61,7 @@ class CrudManager extends AbstractPluginManager
         $hydrator  = $this->getHydrator($name);
         $prototype = $this->getPrototype($name);
 
-        return $this->adapter->findAll(
+        return $this->getAdapter($name)->findAll(
             $prototype,
             $hydrator,
             $model->getAdapterOptions()
@@ -86,7 +80,7 @@ class CrudManager extends AbstractPluginManager
         $hydrator  = $this->getHydrator($name);
         $prototype = $this->getPrototype($name);
 
-        return $this->adapter->find(
+        return $this->getAdapter($name)->find(
             $prototype,
             $id,
             $hydrator,
@@ -105,7 +99,7 @@ class CrudManager extends AbstractPluginManager
         $model = $this->get($name);
         $this->validateModelEntity($model, $entity);
 
-        $this->adapter->persist($entity, $model->getAdapterOptions());
+        $this->getAdapter($name)->persist($entity, $model->getAdapterOptions());
         return $entity;
     }
 
@@ -120,16 +114,8 @@ class CrudManager extends AbstractPluginManager
         $model = $this->get($name);
         $this->validateModelEntity($model, $entity);
 
-        $this->adapter->remove($entity, $model->getAdapterOptions());
+        $this->getAdapter($name)->remove($entity, $model->getAdapterOptions());
         return $entity;
-    }
-
-    /**
-     * @return AdapterInterface
-     */
-    public function getAdapter()
-    {
-        return $this->adapter;
     }
 
     /**
@@ -172,6 +158,27 @@ class CrudManager extends AbstractPluginManager
             $this->formFactory = new Form\Factory($this->getFormElementManager());
         }
         return $this->formFactory;
+    }
+
+    /**
+     * @param Adapter\AdapterManager $adapterManager
+     * @return $this
+     */
+    public function setAdapterManager(Adapter\AdapterManager $adapterManager)
+    {
+        $this->adapterManager = $adapterManager;
+        return $this;
+    }
+
+    /**
+     * @return Adapter\AdapterManager
+     */
+    public function getAdapterManager()
+    {
+        if (!$this->adapterManager instanceof Adapter\AdapterManager) {
+            $this->adapterManager = new Adapter\AdapterManager();
+        }
+        return $this->adapterManager;
     }
 
     /**
@@ -227,11 +234,13 @@ class CrudManager extends AbstractPluginManager
     }
 
     /**
-     * @return string
+     * @param \SpiffyCrud\Adapter\AdapterInterface $defaultAdapter
+     * @return $this
      */
-    public function getDefaultHydrator()
+    public function setDefaultAdapter($defaultAdapter)
     {
-        return $this->defaultHydrator;
+        $this->defaultAdapter = $defaultAdapter;
+        return $this;
     }
 
     /**
@@ -241,12 +250,29 @@ class CrudManager extends AbstractPluginManager
     public function getHydrator($name)
     {
         /** @var Model\ModelInterface $model */
-        $model = $this->get($name);
+        $model           = $this->get($name);
+        $hydratorManager = $this->getHydratorManager();
 
-        if ($this->hydratorManager->has($model->getHydratorName())) {
-            return $this->hydratorManager->get($model->getHydratorName());
+        if ($model->getHydratorName() && $hydratorManager->has($model->getHydratorName())) {
+            return $hydratorManager->get($model->getHydratorName());
         }
-        return $this->hydratorManager->get($this->defaultHydrator);
+        return $hydratorManager->get($this->defaultHydrator);
+    }
+
+    /**
+     * @param string $name
+     * @return Adapter\AdapterInterface
+     */
+    public function getAdapter($name)
+    {
+        /** @var Model\ModelInterface $model */
+        $model          = $this->get($name);
+        $adapterManager = $this->getAdapterManager();
+
+        if ($model->getAdapterName() && $adapterManager->has($model->getAdapterName())) {
+            return $adapterManager->get($model->getAdapterName());
+        }
+        return $adapterManager->get($this->defaultAdapter);
     }
 
     /**

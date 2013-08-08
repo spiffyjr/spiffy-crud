@@ -22,6 +22,11 @@ interface ModelInterface
     /**
      * @return string
      */
+    public function getAdapterName();
+
+    /**
+     * @return string
+     */
     public function getHydratorName();
 
     /**

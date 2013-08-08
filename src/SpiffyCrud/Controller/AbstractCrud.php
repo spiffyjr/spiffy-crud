@@ -3,6 +3,7 @@
 namespace SpiffyCrud\Controller;
 
 use SpiffyCrud\CrudManager;
+use SpiffyCrud\Model;
 use Zend\Http\Response;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
@@ -15,29 +16,24 @@ abstract class AbstractCrud extends AbstractActionController
     protected $crudManager;
 
     /**
-     * @return string
+     * @var string
      */
-    abstract public function getModelName();
+    protected $identifier = 'id';
 
     /**
-     * @return string
+     * @var string
      */
-    abstract public function getReadRoute();
+    protected $modelName;
 
     /**
-     * @return string
+     * @var string
      */
-    abstract public function getCreateRoute();
+    protected $templatePrefix = 'spiffy-crud/controller';
 
     /**
-     * @return string
+     * @var string
      */
-    abstract public function getDeleteRoute();
-
-    /**
-     * @return string
-     */
-    abstract public function getUpdateRoute();
+    protected $route;
 
     /**
      * @return array
@@ -45,17 +41,15 @@ abstract class AbstractCrud extends AbstractActionController
     public function readAction()
     {
         $manager = $this->getCrudManager();
-        $model   = $manager->get($this->getModelName());
+        $model   = $this->getModel();
 
         $viewModel = new ViewModel(array(
             'model'       => $model,
-            'name'        => $this->getModelName(),
-            'data'        => $manager->findAll($this->getModelName()),
+            'name'        => $this->modelName,
+            'data'        => $manager->findAll($this->modelName),
             'createRoute' => $this->getCreateRoute(),
-            'updateRoute' => $this->getUpdateRoute(),
-            'deleteRoute' => $this->getDeleteRoute(),
         ));
-        $viewModel->setTemplate('spiffy-crud/controller/read');
+        $viewModel->setTemplate($this->getTemplate('read'));
         return $viewModel;
     }
 
@@ -64,9 +58,9 @@ abstract class AbstractCrud extends AbstractActionController
      */
     public function createAction()
     {
-        $name    = $this->getModelName();
+        $name    = $this->modelName;
         $manager = $this->getCrudManager();
-        $model   = $manager->get($name);
+        $model   = $this->getModel();
         $form    = $manager->getForm($name);
         $prg     = $this->prg();
 
@@ -86,8 +80,9 @@ abstract class AbstractCrud extends AbstractActionController
             'form'        => $form,
             'name'        => $name,
             'createRoute' => $this->getCreateRoute(),
+            'readRoute'   => $this->getReadRoute(),
         ));
-        $viewModel->setTemplate('spiffy-crud/controller/create');
+        $viewModel->setTemplate($this->getTemplate('create'));
         return $viewModel;
     }
 
@@ -96,8 +91,8 @@ abstract class AbstractCrud extends AbstractActionController
      */
     public function updateAction()
     {
-        $name    = $this->getModelName();
-        $id      = $this->params('id');
+        $name    = $this->modelName;
+        $id      = $this->params($this->identifier);
         $manager = $this->getCrudManager();
         $entity  = $manager->find($name, $id);
         $form    = $manager->getForm($name, $entity);
@@ -119,9 +114,10 @@ abstract class AbstractCrud extends AbstractActionController
             'form'        => $form,
             'name'        => $name,
             'id'          => $id,
+            'readRoute'   => $this->getReadRoute(),
             'updateRoute' => $this->getUpdateRoute(),
         ));
-        $viewModel->setTemplate('spiffy-crud/controller/update');
+        $viewModel->setTemplate($this->getTemplate('update'));
         return $viewModel;
     }
 
@@ -130,9 +126,9 @@ abstract class AbstractCrud extends AbstractActionController
      */
     public function deleteAction()
     {
-        $name    = $this->getModelName();
+        $name    = $this->modelName;
         $manager = $this->getCrudManager();
-        $entity  = $manager->find($name, $this->params('id'));
+        $entity  = $manager->find($name, $this->params($this->identifier));
 
         $manager->remove($name, $entity);
         return $this->redirect()->toRoute($this->getReadRoute());
@@ -157,5 +153,78 @@ abstract class AbstractCrud extends AbstractActionController
             $this->crudManager = $this->getServiceLocator()->get('SpiffyCrud\CrudManager');
         }
         return $this->crudManager;
+    }
+
+    /**
+     * @param string $modelName
+     * @return $this
+     */
+    public function setModelName($modelName)
+    {
+        $this->modelName = $modelName;
+        return $this;
+    }
+
+    /**
+     * @param string $route
+     * @return $this
+     */
+    public function setRoute($route)
+    {
+        $this->route = $route;
+        return $this;
+    }
+
+    /**
+     * @throws \RuntimeException
+     * @return Model\ModelInterface
+     */
+    protected function getModel()
+    {
+        if (!$this->modelName) {
+            throw new \RuntimeException('Missing model name');
+        }
+        return $this->getCrudManager()->get($this->modelName);
+    }
+
+    /**
+     * @param string $name
+     * @return string
+     */
+    protected function getTemplate($name)
+    {
+        return sprintf('%s/%s', trim($this->templatePrefix, '/'), $name);
+    }
+
+    /**
+     * @return string
+     */
+    protected function getCreateRoute()
+    {
+        return $this->route . '/create';
+    }
+
+    /**
+     * @return string
+     */
+    protected function getDeleteRoute()
+    {
+        return $this->route . '/delete';
+    }
+
+    /**
+     * @return string
+     */
+    protected function getReadRoute()
+    {
+        return $this->route;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getUpdateRoute()
+    {
+        return $this->route . '/update';
     }
 }

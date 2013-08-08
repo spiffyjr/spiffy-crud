@@ -2,6 +2,7 @@
 
 namespace SpiffyCrud;
 
+use SpiffyCrud\Adapter\AdapterManager;
 use Zend\ServiceManager\Config;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
@@ -18,12 +19,19 @@ class CrudManagerFactory implements FactoryInterface
     {
         /** @var \SpiffyCrud\ModuleOptions $options */
         $options = $serviceLocator->get('SpiffyCrud\ModuleOptions');
-        $adapter = $this->get($options->getAdapter(), $serviceLocator);
-        $manager = new CrudManager($adapter, new Config($options->getManager()));
+        $manager = new CrudManager(new Config($options->getManager()));
         $manager->setDefaultHydrator($options->getDefaultHydrator());
         $manager->setHydratorManager($serviceLocator->get('HydratorManager'));
         $manager->setFormBuilder($this->get($options->getFormBuilder(), $serviceLocator));
         $manager->setFormElementManager($serviceLocator->get('FormElementManager'));
+        $manager->setDefaultAdapter($options->getDefaultAdapter());
+
+        $adapterManager = new AdapterManager();
+        $adapterManager->setServiceLocator($serviceLocator);
+        $config         = new Config($options->getAdapters());
+        $config->configureServiceManager($adapterManager);
+
+        $manager->setAdapterManager($adapterManager);
 
         return $manager;
     }

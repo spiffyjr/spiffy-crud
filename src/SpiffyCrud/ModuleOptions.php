@@ -14,14 +14,14 @@ class ModuleOptions extends AbstractOptions
      *
      * @var string|HydratorInterface
      */
-    protected $defaultHydrator = 'Zend\Stdlib\Hydrator\ClassMethods';
+    protected $defaultHydrator = 'DoctrineModule\Stdlib\Hydrator\DoctrineObject';
 
     /**
-     * A string with a service name for locating the adapter for persistence.
+     * A string with a service name for locating the adapter from the AdapterManager for persistence.
      *
      * @var string|AdapterInterface
      */
-    protected $adapter = 'SpiffyCrud\Adapter\DoctrineObject';
+    protected $defaultAdapter = 'DoctrineObject';
 
     /**
      * A string with a service locator resource or a \Zend\Form\Builder\AnnotationBuilder to
@@ -37,6 +37,21 @@ class ModuleOptions extends AbstractOptions
      * @var array
      */
     protected $manager = array();
+
+    /**
+     * An array of adapters to register with the adapter manager.
+     *
+     * @var array
+     */
+    protected $adapters = array();
+
+    /**
+     * An array of controllers to register with the controller manager. This is handled by the
+     * SpiffyCrud\Controller\AbstractFactory.
+     *
+     * @var array
+     */
+    protected $controllers = array();
 
     /**
      * An array of models to register with the crud manager. This is handled by the
@@ -83,21 +98,21 @@ class ModuleOptions extends AbstractOptions
     }
 
     /**
-     * @param \SpiffyCrud\Adapter\AdapterInterface|string $adapter
+     * @param \SpiffyCrud\Adapter\AdapterInterface|string $defaultAdapter
      * @return $this
      */
-    public function setAdapter($adapter)
+    public function setDefaultAdapter($defaultAdapter)
     {
-        $this->adapter = $adapter;
+        $this->defaultAdapter = $defaultAdapter;
         return $this;
     }
 
     /**
      * @return \SpiffyCrud\Adapter\AdapterInterface|string
      */
-    public function getAdapter()
+    public function getDefaultAdapter()
     {
-        return $this->adapter;
+        return $this->defaultAdapter;
     }
 
     /**
@@ -134,5 +149,41 @@ class ModuleOptions extends AbstractOptions
     public function getManager()
     {
         return $this->manager;
+    }
+
+    /**
+     * @param array $controllers
+     * @return $this
+     */
+    public function setControllers($controllers)
+    {
+        $this->controllers = $controllers;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getControllers()
+    {
+        return $this->controllers;
+    }
+
+    /**
+     * @param array $adapters
+     * @return $this
+     */
+    public function setAdapters($adapters)
+    {
+        $this->adapters = $adapters;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAdapters()
+    {
+        return $this->adapters;
     }
 }
