@@ -28,7 +28,17 @@ abstract class AbstractCrud extends AbstractActionController
     /**
      * @var string
      */
-    protected $templatePrefix = 'spiffy-crud/controller';
+    protected $createTemplate = 'spiffy-crud/controller/view';
+
+    /**
+     * @var string
+     */
+    protected $readTemplate = 'spiffy-crud/controller/read';
+
+    /**
+     * @var string
+     */
+    protected $updateTemplate = 'spiffy-crud/controller/update';
 
     /**
      * @var string
@@ -49,7 +59,7 @@ abstract class AbstractCrud extends AbstractActionController
             'data'        => $manager->findAll($this->modelName),
             'createRoute' => $this->getCreateRoute(),
         ));
-        $viewModel->setTemplate($this->getTemplate('read'));
+        $viewModel->setTemplate($this->readTemplate);
         return $viewModel;
     }
 
@@ -82,7 +92,7 @@ abstract class AbstractCrud extends AbstractActionController
             'createRoute' => $this->getCreateRoute(),
             'readRoute'   => $this->getReadRoute(),
         ));
-        $viewModel->setTemplate($this->getTemplate('create'));
+        $viewModel->setTemplate($this->createTemplate);
         return $viewModel;
     }
 
@@ -117,7 +127,7 @@ abstract class AbstractCrud extends AbstractActionController
             'readRoute'   => $this->getReadRoute(),
             'updateRoute' => $this->getUpdateRoute(),
         ));
-        $viewModel->setTemplate($this->getTemplate('update'));
+        $viewModel->setTemplate($this->updateTemplate);
         return $viewModel;
     }
 
@@ -185,15 +195,6 @@ abstract class AbstractCrud extends AbstractActionController
             throw new \RuntimeException('Missing model name');
         }
         return $this->getCrudManager()->get($this->modelName);
-    }
-
-    /**
-     * @param string $name
-     * @return string
-     */
-    protected function getTemplate($name)
-    {
-        return sprintf('%s/%s', trim($this->templatePrefix, '/'), $name);
     }
 
     /**
