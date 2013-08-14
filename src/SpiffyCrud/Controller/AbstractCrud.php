@@ -28,7 +28,7 @@ abstract class AbstractCrud extends AbstractActionController
     /**
      * @var string
      */
-    protected $createTemplate = 'spiffy-crud/controller/view';
+    protected $createTemplate = 'spiffy-crud/controller/create';
 
     /**
      * @var string
