@@ -6,53 +6,7 @@ the entire process.
 The only requirement of a model is that it implements [SpiffyCrud\Model\ModelInterface](https://github.com/spiffyjr/spiffy-crud/blob/master/src/SpiffyCrud/Model/ModelInterface.php)
 but typically you should extend the provided [SpiffyCrud\Model\AbstractModel](https://github.com/spiffyjr/spiffy-crud/blob/master/src/SpiffyCrud/Model/AbstractModel.php).
 
-The Crud Manager will inform you if you attempt to register or retrieve any services that are invalid.
-
-## SpiffyCrud\Model\ModelInterface
-
-```php
-<?php
-
-namespace SpiffyCrud\Model;
-
-interface ModelInterface
-{
-    /**
-     * @return string
-     */
-    public function getDisplayName();
-
-    /**
-     * @return string
-     */
-    public function getEntityClass();
-
-    /**
-     * @return string
-     */
-    public function getFormSpec();
-
-    /**
-     * @return string
-     */
-    public function getAdapterName();
-
-    /**
-     * @return string
-     */
-    public function getHydratorName();
-
-    /**
-     * @return array
-     */
-    public function getAdapterOptions();
-
-    /**
-     * @return array
-     */
-    public function getViewOptions();
-}
-```
+The crud manager will throw an exception if you try to register or retrieve any models that are invalid.
 
 ## Model Properties
 
