@@ -11,7 +11,7 @@ The adapter manager will throw an exception if you attempt to register or retrie
 
 ## Shipped Adapters
 
-### [DoctrineObject](https://github.com/spiffyjr/spiffy-crud/blob/master/src/SpiffyCrud/Adapter/DoctrineObject.php)
+### DoctrineObject
 
-DoctrineObject uses Doctrine's ObjectRepository and ObjectManager to handle persistence. This is the default provider 
-after installation.
+[DoctrineObject](https://github.com/spiffyjr/spiffy-crud/blob/master/src/SpiffyCrud/Adapter/DoctrineObject.php) uses 
+Doctrine's ObjectRepository and ObjectManager to handle persistence. This is the default provider after installation.
