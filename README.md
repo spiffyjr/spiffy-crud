@@ -9,8 +9,8 @@ You can view all the module requirements by looking at the "require" key in
 
 ## Documentation
 
-* [Module Options](https://github.com/spiffyjr/spiffy-crud/blob/master/doc/options.md)
-* Models
+* [Options](https://github.com/spiffyjr/spiffy-crud/blob/master/doc/options.md)
+* [Models](https://github.com/spiffyjr/spiffy-crud/blob/master/doc/models.md)
 * Adapters
 * Controllers
 * Forms
