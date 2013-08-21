@@ -73,7 +73,7 @@ The class name of the entity for CRUD operations.
 ### $formSpec (optional)
 The spec to use for creating the custom form for this entity. If no form is present then forms will be built using 
 the [annotation form builder](https://github.com/spiffyjr/spiffy-crud/blob/master/doc/options.md#form_builder) 
-from the model [$entityClass](https://github.com/spiffyjr/spiffy-crud/blob/master/doc/models.md#$entityClass)). 
+from the model [$entityClass](https://github.com/spiffyjr/spiffy-crud/blob/master/doc/models.md#entityclass-required)). 
 Arrays are passed to the form factory and strings are retrieved from the 
 [form element manager](https://github.com/zendframework/zf2/blob/master/library/Zend/Form/FormElementManager.php), 
 `forms` [abstract service factory](https://github.com/zendframework/zf2/blob/master/library/Zend/Form/FormAbstractServiceFactory.php) (if registered), 
