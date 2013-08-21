@@ -34,7 +34,7 @@ return array(
 
 the following endpoints would be available:
 
-* /crud - the list of available entities
-* /crud/:id/update - update the entity identified by `id`
-* /crud/:id/remove - remove the entity identified by `id`
-* /crud/create - create a new entity
+* `/crud` the list of available entities
+* `/crud/:id/update` update the entity identified by `id`
+* `/crud/:id/remove` remove the entity identified by `id`
+* `/crud/create` create a new entity
