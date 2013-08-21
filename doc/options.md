@@ -24,5 +24,5 @@ Passed directly to the adapter manager to register additional adapters.
 ### controllers
 Used by [SpiffyCrud\Controller\AbstractFactory](https://github.com/spiffyjr/spiffy-crud/blob/master/src/SpiffyCrud/Controller/AbstractFactory.php) to register controllers with the crud manager.
 
-### modelsU
+### models
 sed by [SpiffyCrud\Model\AbstractFactory](https://github.com/spiffyjr/spiffy-crud/blob/master/src/SpiffyCrud/Model/AbstractFactory.php) to register models with the crud manager.
