@@ -14,5 +14,4 @@ You can view all the module requirements by looking at the "require" key in
 * [Adapters](https://github.com/spiffyjr/spiffy-crud/blob/master/doc/adapters.md)
 * [Controllers](https://github.com/spiffyjr/spiffy-crud/blob/master/doc/controllers.md)
 * [Routing](https://github.com/spiffyjr/spiffy-crud/blob/master/doc/routing.md)
-* [Forms](https://github.com/spiffyjr/spiffy-crud/blob/master/doc/forms.md)
 * [View Helpers](https://github.com/spiffyjr/spiffy-crud/blob/master/doc/view-helpers.md)
