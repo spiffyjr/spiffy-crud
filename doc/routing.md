@@ -6,6 +6,8 @@ which handles setting up all the route endpoints.
 
 ## Example
 
+Given a sample configuration of:
+
 ```php
 return array(
     'router' => array(
@@ -16,7 +18,7 @@ return array(
                 
                 'options' => array(
                     // required, the base route to use
-                    'route' => '/guides',
+                    'route' => '/crud',
                     
                     // required, the name of the crud controller
                     'controller' => 'My\Crud\Controller',
@@ -29,3 +31,10 @@ return array(
     )
 );
 ```
+
+the following endpoints would be available:
+
+* /crud - the list of available entities
+* /crud/:id/update - update the entity identified by `id`
+* /crud/:id/remove - remove the entity identified by `id`
+* /crud/create - create a new entity
