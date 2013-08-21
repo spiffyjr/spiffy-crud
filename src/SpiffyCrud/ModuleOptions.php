@@ -9,15 +9,14 @@ use Zend\Stdlib\Hydrator\HydratorInterface;
 class ModuleOptions extends AbstractOptions
 {
     /**
-     * A string with a service locator resource or a HydratorInterface to
-     * use as the default hydrator.
+     * A string with a service name for locating the default hydrator from the HydratorManager for persistence.
      *
      * @var string|HydratorInterface
      */
     protected $defaultHydrator = 'DoctrineModule\Stdlib\Hydrator\DoctrineObject';
 
     /**
-     * A string with a service name for locating the adapter from the AdapterManager for persistence.
+     * A string with a service name for locating the default adapter from the AdapterManager for persistence.
      *
      * @var string|AdapterInterface
      */

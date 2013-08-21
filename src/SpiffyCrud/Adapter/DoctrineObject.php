@@ -38,7 +38,15 @@ class DoctrineObject implements AdapterInterface
      */
     public function findAll($entityPrototype, HydratorInterface $hydrator, array $options = array())
     {
-        return $this->objectManager->getRepository(get_class($entityPrototype))->findAll();
+        $entities = $this->objectManager->getRepository(get_class($entityPrototype))->findAll();
+
+        $result = array();
+        foreach ($entities as $entity) {
+            if (is_object($entity)) {
+                $result[] = $hydrator->extract($entity);
+            }
+        }
+        return $result;
     }
 
     /**
@@ -46,7 +54,12 @@ class DoctrineObject implements AdapterInterface
      */
     public function find($entityPrototype, $id, HydratorInterface $hydrator, array $options = array())
     {
-        return $this->objectManager->getRepository(get_class($entityPrototype))->find($id);
+        $entity = $this->objectManager->getRepository(get_class($entityPrototype))->find($id);
+
+        if (is_object($entity)) {
+            return $hydrator->extract($entity);
+        }
+        return $entity;
     }
 
     /**

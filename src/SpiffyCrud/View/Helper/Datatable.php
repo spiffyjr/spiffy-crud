@@ -38,17 +38,21 @@ class Datatable extends AbstractHelper implements HelperInterface
     public function __invoke($name, array $data, array $options = array())
     {
         /** @var \SpiffyCrud\Model\ModelInterface $model */
-        $model   = $this->manager->get($name);
-        $options = $model->getViewOptions();
+        $model       = $this->manager->get($name);
+        $viewOptions = $model->getViewOptions();
 
-        if (isset($options['options'])) {
-            $this->datatable->setOptions(new DatatableOptions($options['options']));
+        if (isset($viewOptions['options'])) {
+            $this->datatable->setOptions($viewOptions['options']);
         }
 
         $this->datatable->setColumns(Collection::factory($this->detectColumns($name)));
         $this->datatable->setDataResult(new DataResult($data, count($data)));
 
-        return $this->getView()->datatable('crudlist', $this->datatable);
+        if (isset($options['return_datatable'])) {
+            return $this->datatable;
+        } else {
+            return $this->getView()->datatable($this->datatable);
+        }
     }
 
     /**
@@ -57,10 +61,10 @@ class Datatable extends AbstractHelper implements HelperInterface
      */
     protected function detectColumns($name)
     {
-        $model           = $this->manager->get($name);
-        $rendererOptions = $model->getViewOptions();
-        if (isset($rendererOptions['columns'])) {
-            return $rendererOptions['columns'];
+        $model       = $this->manager->get($name);
+        $viewOptions = $model->getViewOptions();
+        if (isset($viewOptions['columns'])) {
+            return $viewOptions['columns'];
         }
 
         $columns    = array();

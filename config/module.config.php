@@ -16,11 +16,15 @@ return array(
         ),
     ),
 
+    'controllers' => include 'controller.config.php',
+
     'route_manager' => array(
         'invokables' => array(
             'crud' => 'SpiffyCrud\CrudRoute'
         )
     ),
+
+    'service_manager' => include 'service.config.php',
 
     'view_helpers' => array(
         'factories' => array(
