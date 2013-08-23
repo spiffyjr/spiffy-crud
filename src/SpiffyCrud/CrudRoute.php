@@ -22,6 +22,11 @@ class CrudRoute extends TreeRouteStack implements RouteInterface
     protected $controller;
 
     /**
+     * @var array
+     */
+    protected $defaults = array();
+
+    /**
      * @var string
      */
     protected $identifier;
@@ -29,12 +34,14 @@ class CrudRoute extends TreeRouteStack implements RouteInterface
     /**
      * @param string $route
      * @param string $controller
+     * @param array $defaults
      * @param string $identifier
      */
-    public function __construct($route, $controller, $identifier = 'id')
+    public function __construct($route, $controller, $defaults = array(), $identifier = 'id')
     {
         $this->route      = $route;
         $this->controller = $controller;
+        $this->defaults   = $defaults;
         $this->identifier = $identifier;
 
         parent::__construct();
@@ -47,8 +54,9 @@ class CrudRoute extends TreeRouteStack implements RouteInterface
     {
         $identifier = isset($options['identifier']) ? $options['identifier'] : 'id';
         $route      = isset($options['route']) ? $options['route'] : null;
+        $defaults   = isset($options['defaults']) ? $options['defaults'] : array();
         $controller = isset($options['controller']) ? $options['controller'] : array();
-        $controller = !$controller && isset($options['defaults']['controller']) ? $options['defaults']['controller'] : array();
+        $controller = !$controller && isset($defaults['controller']) ? $defaults['controller'] : array();
 
         if (!$route) {
             throw new Exception\MissingRouteException('Missing route.');
@@ -64,18 +72,19 @@ class CrudRoute extends TreeRouteStack implements RouteInterface
         $instance = new CrudRoute(
             $route,
             $controller,
+            $defaults,
             $identifier
         );
 
-        $instance->addRoutes(array(
+        $config = array(
             'create' => array(
                 'type' => 'literal',
                 'options' => array(
                     'route' => sprintf('%s/create', $route),
-                    'defaults' => array(
+                    'defaults' => array_merge($defaults, array(
                         'controller' => $controller,
                         'action' => 'create'
-                    )
+                    ))
                 ),
             ),
 
@@ -83,10 +92,10 @@ class CrudRoute extends TreeRouteStack implements RouteInterface
                 'type' => 'segment',
                 'options' => array(
                     'route' => sprintf('%s/:%s/delete', $route, $identifier),
-                    'defaults' => array(
+                    'defaults' => array_merge($defaults, array(
                         'controller' => $controller,
                         'action' => 'delete'
-                    )
+                    ))
                 )
             ),
 
@@ -94,13 +103,14 @@ class CrudRoute extends TreeRouteStack implements RouteInterface
                 'type' => 'segment',
                 'options' => array(
                     'route' => sprintf('%s/:%s/update', $route, $identifier),
-                    'defaults' => array(
+                    'defaults' => array_merge($defaults, array(
                         'controller' => $controller,
                         'action' => 'update'
-                    )
+                    ))
                 )
             )
-        ));
+        );
+        $instance->addRoutes($config);
 
         return $instance;
     }
@@ -129,10 +139,10 @@ class CrudRoute extends TreeRouteStack implements RouteInterface
         $path = $uri->getPath();
 
         if ($path === $this->route) {
-            $defaults = array(
+            $defaults = array_merge($this->defaults, array(
                 'controller' => $this->controller,
                 'action'     => 'read',
-            );
+            ));
             return new RouteMatch($defaults, strlen($this->route));
         }
 
