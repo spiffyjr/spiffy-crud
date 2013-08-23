@@ -48,6 +48,7 @@ class CrudRoute extends TreeRouteStack implements RouteInterface
         $identifier = isset($options['identifier']) ? $options['identifier'] : 'id';
         $route      = isset($options['route']) ? $options['route'] : null;
         $controller = isset($options['controller']) ? $options['controller'] : array();
+        $controller = !$controller && isset($options['defaults']['controller']) ? $options['defaults']['controller'] : array();
 
         if (!$route) {
             throw new Exception\MissingRouteException('Missing route.');
