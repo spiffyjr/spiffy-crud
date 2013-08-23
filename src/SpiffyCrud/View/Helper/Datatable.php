@@ -51,7 +51,9 @@ class Datatable extends AbstractHelper implements HelperInterface
         if (isset($options['return_datatable'])) {
             return $this->datatable;
         } else {
-            return $this->getView()->datatable($this->datatable);
+            $id = isset($options['id']) ? $options['id'] : 'datatable';
+
+            return $this->getView()->datatable($id, $this->datatable);
         }
     }
 
