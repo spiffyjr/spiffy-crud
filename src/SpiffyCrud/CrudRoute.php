@@ -138,11 +138,22 @@ class CrudRoute extends TreeRouteStack implements RouteInterface
         $uri  = $request->getUri();
         $path = $uri->getPath();
 
+        $defaults = array_merge($this->defaults, array(
+            'controller' => $this->controller,
+            'action'     => 'read',
+        ));
+
+        if ($pathOffset !== null) {
+            if ($pathOffset >= 0 && strlen($path) >= $pathOffset && !empty($this->route)) {
+                if (strpos($path, $this->route, $pathOffset) === $pathOffset) {
+                    return new RouteMatch($defaults, strlen($this->route));
+                }
+            }
+
+            return null;
+        }
+
         if ($path === $this->route) {
-            $defaults = array_merge($this->defaults, array(
-                'controller' => $this->controller,
-                'action'     => 'read',
-            ));
             return new RouteMatch($defaults, strlen($this->route));
         }
 
