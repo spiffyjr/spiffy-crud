@@ -6,5 +6,9 @@ return array(
         'SpiffyCrud\CrudManager'                              => 'SpiffyCrud\CrudManagerFactory',
         'SpiffyCrud\FormManager'                              => 'SpiffyCrud\FormManagerFactory',
         'SpiffyCrud\ModuleOptions'                            => 'SpiffyCrud\ModuleOptionsFactory',
+    ),
+
+    'invokables' => array(
+        'SpiffyCrud\Config\RuntimeHandler'                    => 'SpiffyCrud\Config\RuntimeHandler',
     )
 );

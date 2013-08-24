@@ -1,5 +1,15 @@
 <?php
 return array(
+    'controllers' => include 'controller.config.php',
+
+    'route_manager' => array(
+        'invokables' => array(
+            'crud' => 'SpiffyCrud\CrudRoute'
+        )
+    ),
+
+    'service_manager' => include 'service.config.php',
+
     'spiffy_crud' => array(
         'adapters' => array(
 
@@ -16,15 +26,11 @@ return array(
         ),
     ),
 
-    'controllers' => include 'controller.config.php',
-
-    'route_manager' => array(
-        'invokables' => array(
-            'crud' => 'SpiffyCrud\CrudRoute'
+    'spiffy_config' => array(
+        'handlers' => array(
+            'SpiffyCrud\Config\RuntimeHandler'
         )
     ),
-
-    'service_manager' => include 'service.config.php',
 
     'view_helpers' => array(
         'factories' => array(
