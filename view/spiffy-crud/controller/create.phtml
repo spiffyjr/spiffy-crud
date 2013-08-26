@@ -1,4 +1,4 @@
-<h1>Create</h1>
+<h1>Create <?php echo $model->getDisplayName(); ?></h1>
 
 <?php echo $this->partial(
     'spiffy-crud/controller/form',
@@ -6,5 +6,4 @@
         'form' => $form,
         'url' => $this->url($createRoute)
     )
-);?>
-<a href="<?php echo $this->url($readRoute); ?>">Back to List</a>
+);

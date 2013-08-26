@@ -17,7 +17,7 @@ interface ModelInterface
     /**
      * @return string
      */
-    public function getFormSpec();
+    public function getForm();
 
     /**
      * @return string

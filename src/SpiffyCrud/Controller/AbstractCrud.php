@@ -70,7 +70,6 @@ abstract class AbstractCrud extends AbstractActionController
     {
         $name    = $this->modelName;
         $manager = $this->getCrudManager();
-        $model   = $this->getModel();
         $form    = $manager->getForm($name);
         $prg     = $this->prg();
 
@@ -86,7 +85,7 @@ abstract class AbstractCrud extends AbstractActionController
         }
 
         $viewModel = new ViewModel(array(
-            'model'       => $model,
+            'model'       => $this->getModel(),
             'form'        => $form,
             'name'        => $name,
             'createRoute' => $this->getCreateRoute(),
@@ -121,6 +120,7 @@ abstract class AbstractCrud extends AbstractActionController
 
         $viewModel = new ViewModel(array(
             'entity'      => $entity,
+            'model'       => $this->getModel(),
             'form'        => $form,
             'name'        => $name,
             'id'          => $id,

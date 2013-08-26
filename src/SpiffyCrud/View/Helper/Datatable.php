@@ -50,11 +50,20 @@ class Datatable extends AbstractHtmlElement implements HelperInterface
         if (isset($options['return_datatable']) || isset($options['return'])) {
             return $this->datatable;
         } else {
-            $id = isset($options['id']) ? $options['id'] : $this->normalizeId($name);
+            $id = isset($options['id']) ? $options['id'] : $this->sanitizeId($name);
 
             $this->getView()->datatable()->injectJs($this->datatable, $id);
             return $this->getView()->datatable()->renderHtml($this->datatable, $id);
         }
+    }
+
+    /**
+     * @param string $id
+     * @return string
+     */
+    protected function sanitizeId($id)
+    {
+        return strtolower(preg_replace('/[^A-Za-z0-9-]+/', '', $id));
     }
 
     /**

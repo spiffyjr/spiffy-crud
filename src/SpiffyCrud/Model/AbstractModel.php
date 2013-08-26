@@ -43,7 +43,7 @@ abstract class AbstractModel extends AbstractOptions implements ModelInterface
      *
      * @var array|string
      */
-    protected $formSpec;
+    protected $form;
 
     /**
      * Additional options for the view such as column setup, etc.
@@ -168,20 +168,20 @@ abstract class AbstractModel extends AbstractOptions implements ModelInterface
     }
 
     /**
-     * @param array|string $formSpec
+     * @param array|string $form
      * @return $this
      */
-    public function setFormSpec($formSpec)
+    public function setForm($form)
     {
-        $this->formSpec = $formSpec;
+        $this->form = $form;
         return $this;
     }
 
     /**
      * @return array|string
      */
-    public function getFormSpec()
+    public function getForm()
     {
-        return $this->formSpec;
+        return $this->form;
     }
 }

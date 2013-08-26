@@ -1,4 +1,4 @@
-<h1>Update</h1>
+<h1>Update <?php echo $model->getDisplayName(); ?></h1>
 
 <?php echo $this->partial(
     'spiffy-crud/controller/form',
@@ -6,5 +6,4 @@
         'form' => $form,
         'url'  => $this->url($updateRoute, array('id' => $id))
     )
-);?>
-<a href="<?php echo $this->url($readRoute); ?>">Back to List</a>
+);

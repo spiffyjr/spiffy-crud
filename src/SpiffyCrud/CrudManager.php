@@ -13,7 +13,7 @@ class CrudManager extends AbstractPluginManager
     /**
      * @var Adapter\AdapterInterface
      */
-    protected $defaultAdapter = 'DoctrineObject';
+    protected $defaultAdapter = 'DoctrineModule\Stdlib\Hydrator\DoctrineObject';
 
     /**
      * @var string
@@ -253,7 +253,7 @@ class CrudManager extends AbstractPluginManager
         $model           = $this->get($name);
         $hydratorManager = $this->getHydratorManager();
 
-        if ($model->getHydratorName() && $hydratorManager->has($model->getHydratorName())) {
+        if ($model->getHydratorName()) {
             return $hydratorManager->get($model->getHydratorName());
         }
         return $hydratorManager->get($this->defaultHydrator);
@@ -269,7 +269,7 @@ class CrudManager extends AbstractPluginManager
         $model          = $this->get($name);
         $adapterManager = $this->getAdapterManager();
 
-        if ($model->getAdapterName() && $adapterManager->has($model->getAdapterName())) {
+        if ($model->getAdapterName()) {
             return $adapterManager->get($model->getAdapterName());
         }
         return $adapterManager->get($this->defaultAdapter);
@@ -293,7 +293,7 @@ class CrudManager extends AbstractPluginManager
             $entity = $this->getPrototype($name);
         }
 
-        $form = $model->getFormSpec();
+        $form = $model->getForm();
         if (is_string($form)) {
             if ($this->getFormElementManager()->has($form)) {
                 $form = $this->getFormElementManager()->get($form);
@@ -311,8 +311,12 @@ class CrudManager extends AbstractPluginManager
             }
         } else if (is_array($form)) {
             $form = $this->getFormFactory()->createForm($form);
+
+            if (!$form instanceof Form\Form) {
+                throw new \RuntimeException('result from form factory was not a form');
+            }
         } else if (is_null($form)) {
-            $form = $this->getFormBuilder()->createForm($entity);
+            $form = $this->buildFormFromEntity($name, $entity);
         } else {
             throw new \InvalidArgumentException(sprintf(
                 'Form of type %s is invalid; must be a string, array, or null',
@@ -321,7 +325,6 @@ class CrudManager extends AbstractPluginManager
             ));
         }
 
-        $form->setHydrator($this->getHydrator($name));
         $form->bind($entity);
         return $form;
     }
@@ -367,6 +370,20 @@ class CrudManager extends AbstractPluginManager
                 __NAMESPACE__
             ));
         }
+    }
+
+    /**
+     * @param string $name
+     * @param object $entity
+     * @return Form\Form
+     */
+    protected function buildFormFromEntity($name, $entity)
+    {
+        /** @var Form\Form $form */
+        $form = $this->getFormBuilder()->createForm($entity);
+        $form->setHydrator($this->getHydrator($name));
+
+        return $form;
     }
 
     /**
