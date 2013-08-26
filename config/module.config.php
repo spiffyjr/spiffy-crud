@@ -34,10 +34,10 @@ return array(
 
     'view_manager' => array(
         'template_map' => array(
-            'spiffy-crud/controller/read'   => __DIR__ . '/../view/spiffy-crud/controller/read.phtml',
-            'spiffy-crud/controller/create' => __DIR__ . '/../view/spiffy-crud/controller/create.phtml',
-            'spiffy-crud/controller/update' => __DIR__ . '/../view/spiffy-crud/controller/update.phtml',
-            'spiffy-crud/controller/form'   => __DIR__ . '/../view/spiffy-crud/controller/form.phtml',
+            'spiffy-crud/crud/read'   => __DIR__ . '/../view/spiffy-crud/crud/read.phtml',
+            'spiffy-crud/crud/create' => __DIR__ . '/../view/spiffy-crud/crud/create.phtml',
+            'spiffy-crud/crud/update' => __DIR__ . '/../view/spiffy-crud/crud/update.phtml',
+            'spiffy-crud/crud/form'   => __DIR__ . '/../view/spiffy-crud/crud/form.phtml',
         )
     )
 );

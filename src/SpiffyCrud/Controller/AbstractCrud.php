@@ -4,6 +4,7 @@ namespace SpiffyCrud\Controller;
 
 use SpiffyCrud\CrudManager;
 use SpiffyCrud\Model;
+use SpiffyCrud\ModuleOptions;
 use Zend\Http\Response;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
@@ -28,17 +29,22 @@ abstract class AbstractCrud extends AbstractActionController
     /**
      * @var string
      */
-    protected $createTemplate = 'spiffy-crud/controller/create';
+    protected $createTemplate;
 
     /**
      * @var string
      */
-    protected $readTemplate = 'spiffy-crud/controller/read';
+    protected $readTemplate;
 
     /**
      * @var string
      */
-    protected $updateTemplate = 'spiffy-crud/controller/update';
+    protected $updateTemplate;
+
+    /**
+     * @var ModuleOptions
+     */
+    protected $moduleOptions;
 
     /**
      * @var string
@@ -59,7 +65,7 @@ abstract class AbstractCrud extends AbstractActionController
             'data'        => $manager->findAll($this->modelName),
             'createRoute' => $this->getCreateRoute(),
         ));
-        $viewModel->setTemplate($this->readTemplate);
+        $viewModel->setTemplate($this->getReadTemplate());
         return $viewModel;
     }
 
@@ -91,7 +97,7 @@ abstract class AbstractCrud extends AbstractActionController
             'createRoute' => $this->getCreateRoute(),
             'readRoute'   => $this->getReadRoute(),
         ));
-        $viewModel->setTemplate($this->createTemplate);
+        $viewModel->setTemplate($this->getCreateTemplate());
         return $viewModel;
     }
 
@@ -127,7 +133,7 @@ abstract class AbstractCrud extends AbstractActionController
             'readRoute'   => $this->getReadRoute(),
             'updateRoute' => $this->getUpdateRoute(),
         ));
-        $viewModel->setTemplate($this->updateTemplate);
+        $viewModel->setTemplate($this->getUpdateTemplate());
         return $viewModel;
     }
 
@@ -186,6 +192,27 @@ abstract class AbstractCrud extends AbstractActionController
     }
 
     /**
+     * @param ModuleOptions $moduleOptions
+     * @return $this
+     */
+    public function setModuleOptions(ModuleOptions $moduleOptions)
+    {
+        $this->moduleOptions = $moduleOptions;
+        return $this;
+    }
+
+    /**
+     * @return ModuleOptions
+     */
+    public function getModuleOptions()
+    {
+        if (!$this->moduleOptions instanceof ModuleOptions) {
+            $this->setModuleOptions($this->getServiceLocator()->get('SpiffyCrud\ModuleOptions'));
+        }
+        return $this->moduleOptions;
+    }
+
+    /**
      * @throws \RuntimeException
      * @return Model\ModelInterface
      */
@@ -195,6 +222,30 @@ abstract class AbstractCrud extends AbstractActionController
             throw new \RuntimeException('Missing model name');
         }
         return $this->getCrudManager()->get($this->modelName);
+    }
+
+    /**
+     * @return string
+     */
+    protected function getCreateTemplate()
+    {
+        return $this->createTemplate ? $this->createTemplate : $this->getModuleOptions()->getDefaultCreateTemplate();
+    }
+
+    /**
+     * @return string
+     */
+    protected function getReadTemplate()
+    {
+        return $this->readTemplate ? $this->readTemplate : $this->getModuleOptions()->getDefaultReadTemplate();
+    }
+
+    /**
+     * @return string
+     */
+    protected function getUpdateTemplate()
+    {
+        return $this->updateTemplate ? $this->updateTemplate : $this->getModuleOptions()->getDefaultUpdateTemplate();
     }
 
     /**

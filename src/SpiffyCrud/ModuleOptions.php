@@ -23,6 +23,27 @@ class ModuleOptions extends AbstractOptions
     protected $defaultAdapter = 'DoctrineObject';
 
     /**
+     * The default read template for controllers that don't implement their own.
+     *
+     * @var string
+     */
+    protected $defaultReadTemplate = 'spiffy-crud/crud/read';
+
+    /**
+     * The default create template for controllers that don't implement their own.
+     *
+     * @var string
+     */
+    protected $defaultCreateTemplate = 'spiffy-crud/crud/create';
+
+    /**
+     * The default update template for controllers that don't implement their own.
+     *
+     * @var string
+     */
+    protected $defaultUpdateTemplate = 'spiffy-crud/crud/update';
+
+    /**
      * A string with a service locator resource or a \Zend\Form\Builder\AnnotationBuilder to
      * use as a form builder.
      *
@@ -184,5 +205,59 @@ class ModuleOptions extends AbstractOptions
     public function getAdapters()
     {
         return $this->adapters;
+    }
+
+    /**
+     * @param string $defaultCreateTemplate
+     * @return $this
+     */
+    public function setDefaultCreateTemplate($defaultCreateTemplate)
+    {
+        $this->defaultCreateTemplate = $defaultCreateTemplate;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultCreateTemplate()
+    {
+        return $this->defaultCreateTemplate;
+    }
+
+    /**
+     * @param string $defaultReadTemplate
+     * @return $this
+     */
+    public function setDefaultReadTemplate($defaultReadTemplate)
+    {
+        $this->defaultReadTemplate = $defaultReadTemplate;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultReadTemplate()
+    {
+        return $this->defaultReadTemplate;
+    }
+
+    /**
+     * @param string $defaultUpdateTemplate
+     * @return $this
+     */
+    public function setDefaultUpdateTemplate($defaultUpdateTemplate)
+    {
+        $this->defaultUpdateTemplate = $defaultUpdateTemplate;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultUpdateTemplate()
+    {
+        return $this->defaultUpdateTemplate;
     }
 }
