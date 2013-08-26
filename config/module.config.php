@@ -26,12 +26,6 @@ return array(
         ),
     ),
 
-    'spiffy_config' => array(
-        'handlers' => array(
-            'SpiffyCrud\Config\RuntimeHandler'
-        )
-    ),
-
     'view_helpers' => array(
         'factories' => array(
             'spiffycrud' => 'SpiffyCrud\View\Helper\DatatableFactory'

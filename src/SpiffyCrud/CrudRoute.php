@@ -2,49 +2,71 @@
 
 namespace SpiffyCrud;
 
+use ArrayObject;
 use SpiffyCrud\Exception;
 use Zend\Http\Request as HttpRequest;
+use Zend\Mvc\Router\Http\Literal;
+use Zend\Mvc\Router\Http\Part;
 use Zend\Mvc\Router\Http\RouteInterface;
 use Zend\Mvc\Router\Http\RouteMatch;
+use Zend\Mvc\Router\Http\Segment;
 use Zend\Mvc\Router\Http\TreeRouteStack;
+use Zend\Mvc\Router\PriorityList;
+use Zend\Mvc\Router\RoutePluginManager;
+use Zend\ServiceManager\ServiceLocatorAwareInterface;
+use Zend\ServiceManager\ServiceLocatorAwareTrait;
 use Zend\Stdlib\RequestInterface;
+use Zend\Uri\Http as HttpUri;
 
-class CrudRoute extends TreeRouteStack implements RouteInterface
+class CrudRoute extends TreeRouteStack implements RouteInterface, ServiceLocatorAwareInterface
 {
+    use ServiceLocatorAwareTrait;
+
     /**
-     * @var string
+     * RouteInterface to match.
+     *
+     * @var RouteInterface
      */
     protected $route;
 
     /**
-     * @var string
+     * Whether the route may terminate.
+     *
+     * @var bool
      */
-    protected $controller;
+    protected $mayTerminate = true;
 
     /**
-     * @var array
+     * Child routes.
+     *
+     * @var mixed
      */
-    protected $defaults = array();
+    public $childRoutes;
 
     /**
-     * @var string
+     * Create a new part route.
+     *
+     * @param  mixed              $route
+     * @param  array|null         $childRoutes
+     * @param  ArrayObject|null   $prototypes
+     * @throws Exception\InvalidArgumentException
      */
-    protected $identifier;
-
-    /**
-     * @param string $route
-     * @param string $controller
-     * @param array $defaults
-     * @param string $identifier
-     */
-    public function __construct($route, $controller, $defaults = array(), $identifier = 'id')
+    public function __construct($route, array $childRoutes = null, ArrayObject $prototypes = null)
     {
-        $this->route      = $route;
-        $this->controller = $controller;
-        $this->defaults   = $defaults;
-        $this->identifier = $identifier;
+        $this->routePluginManager = new RoutePluginManager();
 
-        parent::__construct();
+        if (!$route instanceof RouteInterface) {
+            $route = $this->routeFromArray($route);
+        }
+
+        if ($route instanceof self) {
+            throw new Exception\InvalidArgumentException('Base route may not be a part route');
+        }
+
+        $this->route        = $route;
+        $this->childRoutes  = $childRoutes;
+        $this->prototypes   = $prototypes;
+        $this->routes       = new PriorityList();
     }
 
     /**
@@ -69,50 +91,66 @@ class CrudRoute extends TreeRouteStack implements RouteInterface
             ));
         }
 
-        $instance = new CrudRoute(
-            $route,
-            $controller,
-            $defaults,
-            $identifier
+        $defaults['controller'] = $controller;
+        $routes = array(
+            'create' => new Literal(
+                '/create',
+                array_merge($defaults, array('action' => 'create'))
+            ),
+            'delete' => new Segment(
+                sprintf('/:%s/delete', $identifier),
+                array(),
+                array_merge($defaults, array('action' => 'delete'))
+            ),
+            'update' => new Segment(
+                sprintf('/:%s/update', $identifier),
+                array(),
+                array_merge($defaults, array('action' => 'update'))
+            ),
         );
 
-        $config = array(
-            'create' => array(
-                'type' => 'literal',
-                'options' => array(
-                    'route' => sprintf('%s/create', $route),
-                    'defaults' => array_merge($defaults, array(
-                        'controller' => $controller,
-                        'action' => 'create'
-                    ))
-                ),
-            ),
+        return new CrudRoute(new Literal($route, array_merge($defaults, array('action' => 'read'))), $routes);
+    }
 
-            'delete' => array(
-                'type' => 'segment',
-                'options' => array(
-                    'route' => sprintf('%s/:%s/delete', $route, $identifier),
-                    'defaults' => array_merge($defaults, array(
-                        'controller' => $controller,
-                        'action' => 'delete'
-                    ))
-                )
-            ),
+    /**
+     * {@inheritDoc}
+     */
+    public function match(RequestInterface $request, $pathOffset = null, array $options = array())
+    {
+        if ($pathOffset === null) {
+            $pathOffset = 0;
+        }
 
-            'update' => array(
-                'type' => 'segment',
-                'options' => array(
-                    'route' => sprintf('%s/:%s/update', $route, $identifier),
-                    'defaults' => array_merge($defaults, array(
-                        'controller' => $controller,
-                        'action' => 'update'
-                    ))
-                )
-            )
-        );
-        $instance->addRoutes($config);
+        $match = $this->route->match($request, $pathOffset, $options);
 
-        return $instance;
+        if ($match !== null && method_exists($request, 'getUri')) {
+            if ($this->childRoutes !== null) {
+                $this->addRoutes($this->childRoutes);
+                $this->childRoutes = null;
+            }
+
+            $nextOffset = $pathOffset + $match->getLength();
+
+            $uri        = $request->getUri();
+            $pathLength = strlen($uri->getPath());
+
+            if ($this->mayTerminate && $nextOffset === $pathLength) {
+                $query = $uri->getQuery();
+                if ('' == trim($query) || !$this->hasQueryChild()) {
+                    return $match;
+                }
+            }
+
+            foreach ($this->routes as $name => $route) {
+                if (($subMatch = $route->match($request, $nextOffset, $options)) instanceof RouteMatch) {
+                    if ($match->getLength() + $subMatch->getLength() + $pathOffset === $pathLength) {
+                        return $match->merge($subMatch)->setMatchedRouteName($name);
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -120,44 +158,29 @@ class CrudRoute extends TreeRouteStack implements RouteInterface
      */
     public function assemble(array $params = array(), array $options = array())
     {
+        if ($this->childRoutes !== null) {
+            $this->addRoutes($this->childRoutes);
+            $this->childRoutes = null;
+        }
+
+        $options['has_child'] = (isset($options['name']));
+
+        $path   = $this->route->assemble($params, $options);
+        $params = array_diff_key($params, array_flip($this->route->getAssembledParams()));
+
         if (!isset($options['name'])) {
-            return $this->route;
-        }
-        return parent::assemble($params, $options);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function match(RequestInterface $request, $pathOffset = null)
-    {
-        if (!$request instanceof HttpRequest) {
-            return null;
-        }
-
-        $uri  = $request->getUri();
-        $path = $uri->getPath();
-
-        $defaults = array_merge($this->defaults, array(
-            'controller' => $this->controller,
-            'action'     => 'read',
-        ));
-
-        if ($pathOffset !== null) {
-            if ($pathOffset >= 0 && strlen($path) >= $pathOffset && !empty($this->route)) {
-                if (strpos($path, $this->route, $pathOffset) === $pathOffset) {
-                    return new RouteMatch($defaults, strlen($this->route));
-                }
+            if (!$this->mayTerminate) {
+                throw new Exception\RuntimeException('Part route may not terminate');
+            } else {
+                return $path;
             }
-
-            return null;
         }
 
-        if ($path === $this->route) {
-            return new RouteMatch($defaults, strlen($this->route));
-        }
+        unset($options['has_child']);
+        $options['only_return_path'] = true;
+        $path .= parent::assemble($params, $options);
 
-        return parent::match($request, $pathOffset);
+        return $path;
     }
 
     /**

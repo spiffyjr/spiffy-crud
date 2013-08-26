@@ -8,10 +8,9 @@ use SpiffyCrud\Model;
 use SpiffyDatatables\Column\Collection;
 use SpiffyDatatables\DataResult;
 use SpiffyDatatables\Datatable as SpiffyDatatable;
-use SpiffyDatatables\Options as DatatableOptions;
-use Zend\View\Helper\AbstractHelper;
+use Zend\View\Helper\AbstractHtmlElement;
 
-class Datatable extends AbstractHelper implements HelperInterface
+class Datatable extends AbstractHtmlElement implements HelperInterface
 {
     /**
      * @var SpiffyDatatable
@@ -48,12 +47,13 @@ class Datatable extends AbstractHelper implements HelperInterface
         $this->datatable->setColumns(Collection::factory($this->detectColumns($name)));
         $this->datatable->setDataResult(new DataResult($data, count($data)));
 
-        if (isset($options['return_datatable'])) {
+        if (isset($options['return_datatable']) || isset($options['return'])) {
             return $this->datatable;
         } else {
-            $id = isset($options['id']) ? $options['id'] : 'datatable';
+            $id = isset($options['id']) ? $options['id'] : $this->normalizeId($name);
 
-            return $this->getView()->datatable($id, $this->datatable);
+            $this->getView()->datatable()->injectJs($this->datatable, $id);
+            return $this->getView()->datatable()->renderHtml($this->datatable, $id);
         }
     }
 
