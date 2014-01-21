@@ -4,12 +4,12 @@
     "homepage": "http://www.github.com/spiffyjr/spiffy-crud.git",
     "require": {
         "php": ">=5.3.3",
-        "zendframework/zend-config": "2.*",
-        "zendframework/zend-form": "2.*",
-        "zendframework/zend-modulemanager": "2.*",
-        "zendframework/zend-mvc": "2.*",
-        "zendframework/zend-servicemanager": "2.*",
-        "zendframework/zend-stdlib": "2.*"
+        "zendframework/zend-config": "~2.2",
+        "zendframework/zend-form": "~2.2",
+        "zendframework/zend-modulemanager": "~2.2",
+        "zendframework/zend-mvc": "~2.2",
+        "zendframework/zend-servicemanager": "~2.2",
+        "zendframework/zend-stdlib": "~2.2"
     },
     "require-dev": {
         "doctrine/doctrine-orm-module": "0.*",
@@ -28,7 +28,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "0.x-dev"
+            "dev-develop": "1.x-dev"
         }
     }
 }
